@@ -363,103 +363,106 @@ var tpgj = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJG1.png'});
 var tpjng = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJNG1.png'});
 
 //visible markers are for the clicked commune, all markers are all markers on map (if needed)
-var clusters = L.markerClusterGroup();
+	var clusters = L.markerClusterGroup();
 
-$.getJSON("data/proc/markersReg.geojson",function(data5){
-		geojsonmrk = L.geoJson(data5,{
-			onEachFeature: function (feature, layer) {
-				layer.bindPopup('<div class="custom-popup">'+
-					'<div class="img">'+
-					'<img src="http://via.placeholder.com/275x155" alt="" />'+
-					'<div class="tags">'+
-					'<i class="fas fa-home"></i>'+
-					'<i class="fas fa-key"></i>'+
+	$.getJSON("data/proc/markersReg.geojson",function(data5){
+			geojsonmrk = L.geoJson(data5,{
+				onEachFeature: function (feature, layer) {
+					layer.bindPopup('<div class="custom-popup">'+
+
+					'<div class="tabs">'+
+						'<li class="active singleTab" data-tab="tab-1">'+'Information'+'</li>'+
+						'<li data-tab="tab-2" class="singleTab">'+'Offer'+'</li>'+
 					'</div>'+
+
+
+					'<div id="tab-1" class="tab-content active">'+
+						'<div class="img">'+
+							'<img src="http://via.placeholder.com/275x155" alt="" />'+
+							'<div class="tags">'+
+								'<i class="fas fa-home"></i>'+
+								'<i class="fas fa-key"></i>'+
+							'</div>'+
+						'</div>'+
+						'<h3>'+feature.properties.NAME+'</h3>'+
+						'<div class="location"><i class="fas fa-map-marker-alt"></i> Avenue Pastor, Rabat</div>'+
+						'<a href="#" class="btn btn-danger">Infrastructure Jeunesse</a>'+
 					'</div>'+
-					'<h3>'+feature.properties.NAME+'</h3>'+
-					'<div class="location"><i class="fas fa-map-marker-alt"></i> Avenue Pastor, Rabat</div>'+
-					'<a href="#" class="btn btn-danger">Infrastructure Jeunesse</a>'+
-					'</div>');
-				}, pointToLayer: function (feature, latlng) {
-					if (feature.properties.Abréviatio == "CA"){
-						var marker = L.marker(latlng,{icon: ca});
-					} else if (feature.properties.Abréviatio == "CE"){
-						var marker = L.marker(latlng,{icon: ce});
-					} else if (feature.properties.Abréviatio == "CFP"){
-						var marker = L.marker(latlng, {icon: cfp});
-					} else if (feature.properties.Abréviatio == "CSJ"){
-						var marker = L.marker(latlng,{icon: csj});
-					} else if (feature.properties.Abréviatio == "CSPI"){
-						var marker = L.marker(latlng, {icon: cspi});
-					} else if (feature.properties.Abréviatio == "CT"){
-						var marker = L.marker(latlng,{icon: ct});
-					} else if (feature.properties.Abréviatio == "FF"){
-						var marker = L.marker(latlng,{icon: ff});
-					} else if (feature.properties.Abréviatio == "GE"){
-             var marker = L.marker(latlng,{icon: ge});
-					} else if (feature.properties.Abréviatio == "MJ"){
-						var marker = L.marker(latlng,{icon: mj});
-					} else if (feature.properties.Abréviatio == "PA"){
-						var marker = L.marker(latlng,{icon: pa});
-					} else if (feature.properties.Abréviatio == "PO"){
-						var marker = L.marker(latlng,{icon: poo});
-					} else if (feature.properties.Abréviatio == "POO"){
-						var marker = L.marker(latlng,{icon: poo});
-					} else if (feature.properties.Abréviatio == "SC"){
-						var marker = L.marker(latlng,{icon: sc});
-					} else if (feature.properties.Abréviatio == "TGJG"){
-						var marker = L.marker(latlng,{icon: tgjg});
-					} else if (feature.properties.Abréviatio == "TGJNG"){
-						var marker = L.marker(latlng,{icon: tgjng});
-					} else if (feature.properties.Abréviatio == "TO"){
-						var marker = L.marker(latlng,{icon: to});
-					} else if (feature.properties.Abréviatio == "TPGJ"){
-						var marker = L.marker(latlng,{icon: tpgj});
-					} else if (feature.properties.Abréviatio == "TPJNG"){
-						var marker = L.marker(latlng,{icon: tpjng});
-					}
-				return marker;
-        }
+				'<div id="tab-2" class="tab-content">'+
+					'<li>'+'Test List'+'</li>'+
+					'<li>'+'Test List'+'</li>'+
+					'<li>'+'Test List'+'</li>'+
+				'</div>'+
+
+
+				'</div>');
+					}, pointToLayer: function (feature, latlng) {
+						if (feature.properties.Abréviatio == "CA"){
+							var marker = L.marker(latlng,{icon: ca});
+						} else if (feature.properties.Abréviatio == "CE"){
+							var marker = L.marker(latlng,{icon: ce});
+						} else if (feature.properties.Abréviatio == "CFP"){
+							var marker = L.marker(latlng, {icon: cfp});
+						} else if (feature.properties.Abréviatio == "CSJ"){
+							var marker = L.marker(latlng,{icon: csj});
+						} else if (feature.properties.Abréviatio == "CSPI"){
+							var marker = L.marker(latlng, {icon: cspi});
+						} else if (feature.properties.Abréviatio == "CT"){
+							var marker = L.marker(latlng,{icon: ct});
+						} else if (feature.properties.Abréviatio == "FF"){
+							var marker = L.marker(latlng,{icon: ff});
+						} else if (feature.properties.Abréviatio == "GE"){
+                            var marker = L.marker(latlng,{icon: ge});
+						} else if (feature.properties.Abréviatio == "MJ"){
+							var marker = L.marker(latlng,{icon: mj});
+						} else if (feature.properties.Abréviatio == "PA"){
+							var marker = L.marker(latlng,{icon: pa});
+						} else if (feature.properties.Abréviatio == "PO"){
+							var marker = L.marker(latlng,{icon: poo});
+						} else if (feature.properties.Abréviatio == "POO"){
+							var marker = L.marker(latlng,{icon: poo});
+						} else if (feature.properties.Abréviatio == "SC"){
+							var marker = L.marker(latlng,{icon: sc});
+						} else if (feature.properties.Abréviatio == "TGJG"){
+							var marker = L.marker(latlng,{icon: tgjg});
+						} else if (feature.properties.Abréviatio == "TGJNG"){
+							var marker = L.marker(latlng,{icon: tgjng});
+						} else if (feature.properties.Abréviatio == "TO"){
+							var marker = L.marker(latlng,{icon: to});
+						} else if (feature.properties.Abréviatio == "TPGJ"){
+							var marker = L.marker(latlng,{icon: tpgj});
+						} else if (feature.properties.Abréviatio == "TPJNG"){
+							var marker = L.marker(latlng,{icon: tpjng});
+						}
+					return marker;
+          }
+		});
+      //add to markers only, add to cluster only on commune click (request)
+			clusters.addLayer(geojsonmrk);
+			// .addTo(Khemissetmrk);
 	});
-    //add to markers only, add to cluster only on commune click (request)
-		clusters.addLayer(geojsonmrk);
-		// .addTo(Khemissetmrk);
-});
-//clusters.addLayer(geojsonmrk);
-map.addLayer(clusters);
+	//clusters.addLayer(geojsonmrk);
+	map.addLayer(clusters);
 
-//layers 
-var baseLayers = {
-   "Markers":basemap1
-};
+  //layers 
+  var baseLayers = {
+     "Markers":basemap1
+  };
 // vars for IDs of layers control 
-// var overlays = {
-//   "Markers": clusters,
-//   // "Markers of Khemisset": Khemissetmrk
-//   "Communes": communes,
-//   "Provinces": provinces,
-//   "Regions": regions
-// };
-
-// L.control.layers(baseLayers, overlays, {
-// 	hideSingleBase: false,
-// 	collapsed: false
-// }).addTo(map);
-
-var groupedOverlays = {
-  "Markers": {
-    "All Markers": clusters
-    // "Cities": cities
-  },
-  "Zones:": {
+  var overlays = {
+    "Markers": clusters,
+    // "Markers of Khemisset": Khemissetmrk
     "Communes": communes,
     "Provinces": provinces,
     "Regions": regions
-  }
-};
+  };
+
+	L.control.layers(baseLayers, overlays, {
+		hideSingleBase: false,
+		collapsed: false
+	}).addTo(map);
 
 
-L.control.groupedLayers(baseLayers, groupedOverlays).addTo(map);
 
 // 	var types = [CA, CE, CFP, CSJ, CSPI, CT, FF, GE, MJ, PA, POO, POO, SC, TGJG, TGJNG, TO, TPGJ, TPJNG];
 
@@ -482,3 +485,15 @@ L.control.groupedLayers(baseLayers, groupedOverlays).addTo(map);
 
 // });
 
+//-- popup tabs
+
+
+	$(document).on("click",".singleTab",function(){
+		var tab_id = $(this).attr('data-tab');
+
+		$('.singleTab').removeClass('active');
+		$('.tab-content').removeClass('active');
+
+		$(this).addClass('active');
+		$("#"+tab_id).addClass('active');
+	})

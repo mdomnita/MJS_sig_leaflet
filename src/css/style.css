@@ -11,18 +11,18 @@ body {
 .leaflet-popup-content-wrapper {
 	border-radius: 4px;
 }
-.custom-popup .img {
+.img {
 	position: relative;
 }
-.custom-popup .img .tags {
+.tags {
 	position: absolute;
 	right: 10px;
 	top: 10px;
 }
-.custom-popup .img .tags .fas {
+.tags .fas {
 	margin-left: 10px;
 }
-.custom-popup .img .tags .fas {
+.tags .fas {
 	width: 36px;
 	height: 36px;
 	color: #fff;
@@ -32,10 +32,10 @@ body {
 	line-height: 36px;
 	display: inline-block;
 }
-.custom-popup .img .tags .fa-key {
+.tags .fa-key {
 	background-color: #f53435;
 }
-.custom-popup .img .tags .fa-home {
+.tags .fa-home {
 	background-color: #93da4c;
 }
 .custom-popup h3 {
