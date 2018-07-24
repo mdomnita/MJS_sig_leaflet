@@ -33,7 +33,7 @@ var communes = L.layerGroup();
 var map = L.map('map', {
 	center: [33.80, -6.21],                  //[29.38217507514529, -8.7451171875],
 	zoom: 9,
-  layers: [provinces]
+  layers: [regions]
 });
 
 	var basemap1 = L.tileLayer('https://api.mapbox.com/styles/v1/sidgis/cjj8lafxc3f032snzbhbhxe7y/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoic2lkZ2lzIiwiYSI6ImM3RE1lZE0ifQ.LuNNRrO9LcVKs2dN_HvVBg', {
@@ -86,11 +86,12 @@ map.on('zoomstart', function(z) {
 map.on('zoomend', function(z) {
   var aZoom = z.target.getZoom();
   //hide communes on zoom 13
-  if (aZoom < cZoom && z.target.getZoom() < 13) {
+  if (aZoom < cZoom && z.target.getZoom() < 11) {
     map.removeLayer(communes);
+    map.addLayer(provinces);
   }
   //hide provinces on zoom 11
-  if (aZoom < cZoom && z.target.getZoom() < 10) {
+  if (aZoom < cZoom && z.target.getZoom() < 8) {
     map.removeLayer(provinces);
     map.addLayer(regions);
   }
@@ -169,13 +170,13 @@ $.getJSON("data/region_Maroc_bis.geojson",function(data1){
 
 //todo: click on region shows province within
 function toggleProvinces(p) {
+  p.originalEvent.stopPropagation();
   var prov = p.target;
   var provCode = prov.feature.properties.NAME;
   console.log(provCode);
   var commLayers = provinces.getLayers()[0].getLayers();
   //go through all provinces, hide all from other provinces
   map.addLayer(provinces);
-  map.addLayer(communes);
   for (var cm in commLayers) {
     if (commLayers[cm].feature.properties.NAME !== provCode) {
       map.removeLayer(commLayers[cm]);
@@ -184,10 +185,12 @@ function toggleProvinces(p) {
       map.addLayer(commLayers[cm]);
     }
   }
+  map.removeLayer(regions);
 }
 
-//click on region shows provinces within
+//click on province shows communes within
 function toggleCommunes(p) {
+  p.originalEvent.stopPropagation();
   var prov = p.target;
   var provCode = prov.feature.properties.CODEPROVIN;
   console.log(provCode);
@@ -204,8 +207,12 @@ function toggleCommunes(p) {
   }
 }
 
-//click on commune zooms on commune
+//click on commune zooms to it
+function toggleMarkers(p) {
+  p.originalEvent.stopPropagation();
   var prov = p.target;
+  map.removeLayer(provinces);
+
   var myBounds = prov.getBounds().pad(0.02);
   setTimeout(function() { map.fitBounds(myBounds) }, 0);
   // var provCode = prov.feature.properties.osm_id;
@@ -338,12 +345,12 @@ options:{
 // Create specific icons
 var ca = new Icon({iconUrl: 'MJS_icones/Jeunesse/PNG_1X/CA1.png'});
 var ce = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/CE1.png'});
-var cfp = new Icon({iconUrl: 'MJS_icones/Affaires_Féminines/PNG_1X/CFP1.png'});
+var cfp = new Icon({iconUrl: 'MJS_icones/Affaires_Feminines/PNG_1X/CFP1.png'});
 var csj = new Icon({iconUrl: 'MJS_icones/Jeunesse/PNG_1X/CSJ1.png'});
 var cspi = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/CSPI1.png'});
 var ct = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/CT1.png'});
-var ff = new Icon({iconUrl: 'MJS_icones/Affaires_Féminines/PNG_1X/FF1.png'});
-var ge = new Icon({iconUrl: 'MJS_icones/Affaires_Féminines/PNG_1X/GE1.png'});
+var ff = new Icon({iconUrl: 'MJS_icones/Affaires_Feminines/PNG_1X/FF1.png'});
+var ge = new Icon({iconUrl: 'MJS_icones/Affaires_Feminines/PNG_1X/GE1.png'});
 var mj = new Icon({iconUrl: 'MJS_icones/Jeunesse/PNG_1X/MJ1.png'});
 var pa = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/PA1.png'});
 var po = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/POO1.png'});
@@ -389,7 +396,7 @@ $.getJSON("data/proc/markersReg.geojson",function(data5){
 					} else if (feature.properties.Abréviatio == "FF"){
 						var marker = L.marker(latlng,{icon: ff});
 					} else if (feature.properties.Abréviatio == "GE"){
-                          var marker = L.marker(latlng,{icon: ge});
+             var marker = L.marker(latlng,{icon: ge});
 					} else if (feature.properties.Abréviatio == "MJ"){
 						var marker = L.marker(latlng,{icon: mj});
 					} else if (feature.properties.Abréviatio == "PA"){
@@ -426,20 +433,33 @@ var baseLayers = {
    "Markers":basemap1
 };
 // vars for IDs of layers control 
-var overlays = {
-  "Markers": clusters,
-  // "Markers of Khemisset": Khemissetmrk
-  "Communes": communes,
-  "Provinces": provinces,
-  "Regions": regions
+// var overlays = {
+//   "Markers": clusters,
+//   // "Markers of Khemisset": Khemissetmrk
+//   "Communes": communes,
+//   "Provinces": provinces,
+//   "Regions": regions
+// };
+
+// L.control.layers(baseLayers, overlays, {
+// 	hideSingleBase: false,
+// 	collapsed: false
+// }).addTo(map);
+
+var groupedOverlays = {
+  "Markers": {
+    "All Markers": clusters
+    // "Cities": cities
+  },
+  "Zones:": {
+    "Communes": communes,
+    "Provinces": provinces,
+    "Regions": regions
+  }
 };
 
-L.control.layers(baseLayers, overlays, {
-	hideSingleBase: false,
-	collapsed: false
-}).addTo(map);
 
-
+L.control.groupedLayers(baseLayers, groupedOverlays).addTo(map);
 
 // 	var types = [CA, CE, CFP, CSJ, CSPI, CT, FF, GE, MJ, PA, POO, POO, SC, TGJG, TGJNG, TO, TPGJ, TPJNG];
 
