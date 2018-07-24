@@ -1,0 +1,80 @@
+body {
+	font-family: 'Source Sans Pro', sans-serif;
+}
+.custom-popup {
+	width: 275px;
+	padding: 8px;
+}
+.leaflet-popup-content {
+	margin: 0;
+}
+.leaflet-popup-content-wrapper {
+	border-radius: 4px;
+}
+.img {
+	position: relative;
+}
+.tags {
+	position: absolute;
+	right: 10px;
+	top: 10px;
+}
+.tags .fas {
+	margin-left: 10px;
+}
+.tags .fas {
+	width: 36px;
+	height: 36px;
+	color: #fff;
+	font-size: 16px;
+	border-radius: 50%;
+	text-align: center;
+	line-height: 36px;
+	display: inline-block;
+}
+.tags .fa-key {
+	background-color: #f53435;
+}
+.tags .fa-home {
+	background-color: #93da4c;
+}
+.custom-popup h3 {
+	font-family: 'Source Sans Pro', sans-serif;
+	font-weight: 500;
+	font-size: 22px;
+	color: #484d60;
+	margin: 8px 0;
+    line-height: 24px;
+    margin-left: 8px;
+}
+.custom-popup .location {
+	font-family: 'Source Sans Pro', sans-serif;
+	color: #ababab;
+	font-size: 16px;
+	font-weight: 300;
+	margin-bottom: 13px;
+	margin-left: 8px;
+}
+.custom-popup .location .fas {
+	color: #d0011b;
+	margin-right: 7px;
+}
+.custom-popup .btn {
+	font-family: 'Source Sans Pro', sans-serif;
+	border: 1px solid #d0011b;
+	color: #d0011b;
+	text-decoration: none;
+	border-radius: 20px;
+	padding: 8px 18px;
+	font-weight: 600;
+	display: inline-block;
+}
+.custom-popup .btn:hover {
+	background-color: #d0011b;
+	color: #fff;
+}
+.leaflet-container a.leaflet-popup-close-button {
+	font-size: 12px;
+    top: -5px;
+    right: -5px;
+}
