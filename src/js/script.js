@@ -1,337 +1,356 @@
 var states = {
-
-				"Khemisset"	:{'population':281000,'etablissement':18 },
-				"Ait Mimoune"	:{'population':8254,'etablissement':2 },
-				"Ait Yadine"	:{'population':20500,'etablissement':2 },
-				"Tiflet"	:{'population':86000,'etablissement':6 },
-				"Khemis Sidi Yahya"	:{'population':6700,'etablissement':1 },
-				"M'Qam Tolba"	:{'population':13500,'etablissement':2 },
-				"Sidi Allal El Bahraoui"	:{'population':281000,'etablissement':18 },
-				"Oulmes"	:{'population':18700,'etablissement':7 },
-				"Rommani"	:{'population':12300,'etablissement':5 },
-				"Ain Essbite"	:{'population':11000,'etablissement':1 },
-				"Brachoua"	:{'population':12000,'etablissement':2 },
-				"El Ganzra"	:{'population':13200,'etablissement':2 },
-				"Maaziz"	:{'population':11500,'etablissement':1 },
-				"Tiddas"	:{'population':10000,'etablissement':1 },
-				"Ait Ichou"	:{'population':10000,'etablissement':1 },
-				"Sidi Allal Lamsadder"	:{'population':7400,'etablissement':2 },
-				"Houdderane"	:{'population':6400,'etablissement':1 },
-				"Marchouch":{'population':10000,'etablissement':2 },
-				
-				}
+	"Khemisset"	:{'population':281000,'etablissement':18 },
+	"Ait Mimoune"	:{'population':8254,'etablissement':2 },
+	"Ait Yadine"	:{'population':20500,'etablissement':2 },
+	"Tiflet"	:{'population':86000,'etablissement':6 },
+	"Khemis Sidi Yahya"	:{'population':6700,'etablissement':1 },
+	"M'Qam Tolba"	:{'population':13500,'etablissement':2 },
+	"Sidi Allal El Bahraoui"	:{'population':281000,'etablissement':18 },
+	"Oulmes"	:{'population':18700,'etablissement':7 },
+	"Rommani"	:{'population':12300,'etablissement':5 },
+	"Ain Essbite"	:{'population':11000,'etablissement':1 },
+	"Brachoua"	:{'population':12000,'etablissement':2 },
+	"El Ganzra"	:{'population':13200,'etablissement':2 },
+	"Maaziz"	:{'population':11500,'etablissement':1 },
+	"Tiddas"	:{'population':10000,'etablissement':1 },
+	"Ait Ichou"	:{'population':10000,'etablissement':1 },
+	"Sidi Allal Lamsadder"	:{'population':7400,'etablissement':2 },
+	"Houdderane"	:{'population':6400,'etablissement':1 },
+	"Marchouch":{'population':10000,'etablissement':2 },
+}
 
 var min = 10000 ;
+var cZoom = 0;
 
 
 //vars for layers will be shown on layer control
-	var markers = L.layerGroup();
-	var Khemissetmrk = L.layerGroup();
-  var regions = L.layerGroup();
-	var provinces = L.layerGroup();
-	var communes = L.layerGroup();
+var markers = L.layerGroup();
+var Khemissetmrk = L.layerGroup();
+var regions = L.layerGroup();
+var provinces = L.layerGroup();
+var communes = L.layerGroup();
 
-	var map = L.map('map', {
-		center: [33.80, -6.21],                  //[29.38217507514529, -8.7451171875],
-		zoom: 9,
-    layers: [provinces]
-	});
+var map = L.map('map', {
+	center: [33.80, -6.21],                  //[29.38217507514529, -8.7451171875],
+	zoom: 9,
+  layers: [regions]
+});
 
-		var basemap1 = L.tileLayer('https://api.mapbox.com/styles/v1/sidgis/cjj8lafxc3f032snzbhbhxe7y/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoic2lkZ2lzIiwiYSI6ImM3RE1lZE0ifQ.LuNNRrO9LcVKs2dN_HvVBg', {
-		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-	}).addTo(map);
+	var basemap1 = L.tileLayer('https://api.mapbox.com/styles/v1/sidgis/cjj8lafxc3f032snzbhbhxe7y/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoic2lkZ2lzIiwiYSI6ImM3RE1lZE0ifQ.LuNNRrO9LcVKs2dN_HvVBg', {
+	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
 
 	
 	var info = L.control();
 
-	info.onAdd = function (map) {
-		this._div = L.DomUtil.create('div', 'info');
-		this.update();
-		return this._div;
-	};
+info.onAdd = function (map) {
+	this._div = L.DomUtil.create('div', 'info');
+	this.update();
+	return this._div;
+};
 
-	info.update = function (props) {
-		this._div.innerHTML = '<h4>Morocco</h4>' +  (props ?
-			'<b>' + props.name + '</b>' + '<h5>' + 'Population: ' + props.Population  + '</h5>' 
-			: 'Hover over a commune');
-	};
-	info.addTo(map);
+info.update = function (props) {
+	this._div.innerHTML = '<h4>Morocco</h4>' +  (props ?
+		'<b>' + props.name + '</b>' + '<h5>' + 'Population: ' + props.Population  + '</h5>' 
+		: 'Hover over a commune');
+};
+info.addTo(map);
 
 // vars which will carry data of GeoJson files
-  var geojsonfile1 = null;
-	var geojsonfile2 = null;
-	var geojsonfile3 = null;
-	var geojsonmarkers = null;
-	var geojsonmrk = null;
+var geojsonfile1 = null;
+var geojsonfile2 = null;
+var geojsonfile3 = null;
+var geojsonmarkers = null;
+var geojsonmrk = null;
 	
-  // Get GeoJSON and put on it on the map when it loads
+// Get GeoJSON and put on it on the map when it loads
 
-  var markericon = L.icon({
+var markericon = L.icon({
 	iconUrl: 'icons/Map-marker-02.png',
 	iconSize: [36,36],
 	iconAnchor: [18,18]
-  });
+});
 //functions for hover and onClick on layers
         var geohover;
 
-    function resetHighlight(r) {
-		geojsonfile1.resetStyle(r.target);
-	    info.update();
-	}
-
-	// function zoomToFeature(e) {
-	// 	map.fitBounds(e.target.getBounds());
-	// }
-
-  	function highlightFeature(r) {
-		var layer1 = r.target;
-
-		layer1.setStyle({
-			weight: 2,
-			stroke: true,
-			color: 'black',
-			fill: true,
-			fillColor: 'black',
-			dashArray: '',
-			fillOpacity: 0.2
-		});
-        info.update(layer1.feature.properties);
-	}
-
-	function onEachFeature(feature, layer1) {
-		layer1.on({
-			mouseover: highlightFeature,
-			mouseout: resetHighlight
-			//layer.bindTooltip(feature.properties.name_1)
-			//click: zoomToFeature
-		});
-	}
-
-	  function styleregions(feature) {
-    return {
-        //fillColor: getColor(feature.properties.osm_id),
-        fillColor: '#ffffff',
-        weight: 3,
-        opacity: 1,
-        color: 'black',
-        //dashArray: '3',
-        fillOpacity: 0
-    };
+function resetHighlight(r) {
+	geojsonfile1.resetStyle(r.target);
+    info.update();
 }
 
-  $.getJSON("data/region_Maroc_bis.geojson",function(data1){
-      geojsonfile1 = L.geoJson(data1,{
-                style: styleregions, 	
-                onEachFeature: function (feature, layer) {
-                  layer.on({
-                    click: toggleProvinces
-                  });
-                }
-  	}).addTo(regions);
-  });
+//remember previous zoom to check if user zoomed in or out
+map.on('zoomstart', function(z) {
+  cZoom = z.target.getZoom();
+});
+//if user zooms out hide lower level layers
+map.on('zoomend', function(z) {
+  var aZoom = z.target.getZoom();
+  //hide communes on zoom 13
+  if (aZoom < cZoom && z.target.getZoom() < 11) {
+    map.removeLayer(communes);
+    map.addLayer(provinces);
+  }
+  //hide provinces on zoom 11
+  if (aZoom < cZoom && z.target.getZoom() < 8) {
+    map.removeLayer(provinces);
+    map.addLayer(regions);
+  }
+});
 
-      function resetHighlight1(p) {
-		geojsonfile2.resetStyle(p.target);
-	    info.update();
-	}
+	function highlightFeature(r) {
+	var layer1 = r.target;
 
-	// function zoomToFeature(e) {
-	// 	map.fitBounds(e.target.getBounds());
-	// }
+	layer1.setStyle({
+		weight: 2,
+		stroke: true,
+		color: 'black',
+		fill: true,
+		fillColor: 'black',
+		dashArray: '',
+		fillOpacity: 0.2
+	});
+      info.update(layer1.feature.properties);
+}
 
-  	function highlightFeature1(p) {
-		var layer2 = p.target;
+function onEachFeature(feature, layer1) {
+	layer1.on({
+		mouseover: highlightFeature,
+		mouseout: resetHighlight
+		//layer.bindTooltip(feature.properties.name_1)
+		//click: zoomToFeature
+	});
+}
 
-		layer2.setStyle({
-			weight: 2,
-			stroke: true,
-			color: 'red',
-			fill: true,
-			fillColor: 'red',
-			dashArray: '',
-			fillOpacity: 0.2
-		});
-        info.update(layer2.feature.properties);
-	}
+  function styleregions(feature) {
+  return {
+      //fillColor: getColor(feature.properties.osm_id),
+      fillColor: '#ffffff',
+      weight: 3,
+      opacity: 1,
+      color: 'black',
+      //dashArray: '3',
+      fillOpacity: 0
+  };
+}
+
+$.getJSON("data/region_Maroc_bis.geojson",function(data1){
+    geojsonfile1 = L.geoJson(data1,{
+              style: styleregions, 	
+              onEachFeature: function (feature, layer) {
+                layer.on({
+                  click: toggleProvinces
+                });
+              }
+	}).addTo(regions);
+});
+
+    function resetHighlight1(p) {
+	geojsonfile2.resetStyle(p.target);
+    info.update();
+}
+
+// function zoomToFeature(e) {
+// 	map.fitBounds(e.target.getBounds());
+// }
+
+	function highlightFeature1(p) {
+	var layer2 = p.target;
+
+	layer2.setStyle({
+		weight: 2,
+		stroke: true,
+		color: 'red',
+		fill: true,
+		fillColor: 'red',
+		dashArray: '',
+		fillOpacity: 0.2
+	});
+      info.update(layer2.feature.properties);
+}
 
 //todo: click on region shows province within
-  function toggleProvinces(p) {
-    var prov = p.target;
-    var provCode = prov.feature.properties.NAME;
-    console.log(provCode);
-    var commLayers = provinces.getLayers()[0].getLayers();
-    //go through all provinces, hide all from other provinces
-    map.addLayer(provinces);
-    for (var cm in commLayers) {
-      if (commLayers[cm].feature.properties.NAME !== provCode) {
-        map.removeLayer(commLayers[cm]);
-      }
-      else {
-        map.addLayer(commLayers[cm]);
-      }
+function toggleProvinces(p) {
+  p.originalEvent.stopPropagation();
+  var prov = p.target;
+  var provCode = prov.feature.properties.NAME;
+  console.log(provCode);
+  var commLayers = provinces.getLayers()[0].getLayers();
+  //go through all provinces, hide all from other provinces
+  map.addLayer(provinces);
+  for (var cm in commLayers) {
+    if (commLayers[cm].feature.properties.NAME !== provCode) {
+      map.removeLayer(commLayers[cm]);
+    }
+    else {
+      map.addLayer(commLayers[cm]);
     }
   }
+  map.removeLayer(regions);
+}
 
-//click on region shows provinces within
-  function toggleCommunes(p) {
-    var prov = p.target;
-    var provCode = prov.feature.properties.CODEPROVIN;
-    console.log(provCode);
-    var commLayers = communes.getLayers()[0].getLayers();
-    //go through all communes, hide all from other provinces
-    map.addLayer(communes);
-    for (var cm in commLayers) {
-      if (commLayers[cm].feature.properties.CODEPROVIN !== provCode) {
-        map.removeLayer(commLayers[cm]);
-      }
-      else {
-        map.addLayer(commLayers[cm]);
-      }
+//click on province shows communes within
+function toggleCommunes(p) {
+  p.originalEvent.stopPropagation();
+  var prov = p.target;
+  var provCode = prov.feature.properties.CODEPROVIN;
+  console.log(provCode);
+  var commLayers = communes.getLayers()[0].getLayers();
+  //go through all communes, hide all from other provinces
+  map.addLayer(communes);
+  for (var cm in commLayers) {
+    if (commLayers[cm].feature.properties.CODEPROVIN !== provCode) {
+      map.removeLayer(commLayers[cm]);
+    }
+    else {
+      map.addLayer(commLayers[cm]);
     }
   }
+}
 
-//click on commune shows markers within
-  function toggleMarkers(p) {
-    var prov = p.target;
+//click on commune zooms to it
+function toggleMarkers(p) {
+  p.originalEvent.stopPropagation();
+  var prov = p.target;
+  map.removeLayer(provinces);
 
-    var myBounds = prov.getBounds().pad(0.02);
-    setTimeout(function() { map.fitBounds(myBounds) }, 0);
-    // var provCode = prov.feature.properties.osm_id;
-    // console.log(provCode);
-    // var commLayers = allMarkers.getLayers();
-    // //go through all communes, hide all from other provinces
-    // clusters.clearLayers();
-    // map.addLayer(clusters);
-    // // var markerz = commLayers[0].getLayers();
-    // for (var cm in commLayers) {
-    //   if (commLayers[cm].feature.properties.osm_id !== provCode) {
-    //     clusters.removeLayer(commLayers[cm]);
-    //   }
-    //   else {
-    //     clusters.addLayer(commLayers[cm]);
-    //   }
-    // }
-    // document.querySelectorAll('[type = "checkbox"]')[0].disabled = false;
-  }
+  var myBounds = prov.getBounds().pad(0.02);
+  setTimeout(function() { map.fitBounds(myBounds) }, 0);
+  // var provCode = prov.feature.properties.osm_id;
+  // console.log(provCode);
+  // var commLayers = allMarkers.getLayers();
+  // //go through all communes, hide all from other provinces
+  // clusters.clearLayers();
+  // map.addLayer(clusters);
+  // // var markerz = commLayers[0].getLayers();
+  // for (var cm in commLayers) {
+  //   if (commLayers[cm].feature.properties.osm_id !== provCode) {
+  //     clusters.removeLayer(commLayers[cm]);
+  //   }
+  //   else {
+  //     clusters.addLayer(commLayers[cm]);
+  //   }
+  // }
+  // document.querySelectorAll('[type = "checkbox"]')[0].disabled = false;
+}
 
 //hover province colors
-  function styleprovinces(feature) {
-    return {
-        //fillColor: getColor(feature.properties.osm_id),
-        fillColor: '#ffffff',
-        weight: 2,
-        opacity: 1,
-        color: 'red',
-        //dashArray: '3',
-        fillOpacity: 0
-    };
+function styleprovinces(feature) {
+  return {
+      //fillColor: getColor(feature.properties.osm_id),
+      fillColor: '#ffffff',
+      weight: 2,
+      opacity: 1,
+      color: 'red',
+      //dashArray: '3',
+      fillOpacity: 0
+  };
 }
 
-	$.getJSON("data/proc/provinceReg.geojson",function(data2){
-			geojsonfile2 = L.geoJson(data2,{
-				       style: styleprovinces,
-			            onEachFeature: function (feature, layer2) {
-			            layer2.on({
-    					      mouseover: highlightFeature1,
-    					      mouseout: resetHighlight1,
-                    click: toggleCommunes
-		              });
-			           }
-		}).addTo(provinces);
-	});
+$.getJSON("data/proc/provinceReg.geojson",function(data2){
+		geojsonfile2 = L.geoJson(data2,{
+			       style: styleprovinces,
+		            onEachFeature: function (feature, layer2) {
+		            layer2.on({
+  					      mouseover: highlightFeature1,
+  					      mouseout: resetHighlight1,
+                  click: toggleCommunes
+	              });
+		           }
+	}).addTo(provinces);
+});
 
 function getColor(d) {
-    return d > 1000 ? '#800026' :
-           d > 500  ? '#BD0026' :
-           d > 200  ? '#E31A1C' :
-           d > 100  ? '#FC4E2A' :
-           d > 50   ? '#FD8D3C' :
-           d > 20   ? '#FEB24C' :
-           d > 10   ? '#FED976' :
-                      '#FFEDA0';
+  return d > 1000 ? '#800026' :
+         d > 500  ? '#BD0026' :
+         d > 200  ? '#E31A1C' :
+         d > 100  ? '#FC4E2A' :
+         d > 50   ? '#FD8D3C' :
+         d > 20   ? '#FEB24C' :
+         d > 10   ? '#FED976' :
+                    '#FFEDA0';
 }
 
-      function resetHighlight2(c) {
-		geojsonfile3.resetStyle(c.target);
-	    info.update();
-	}
+    function resetHighlight2(c) {
+	geojsonfile3.resetStyle(c.target);
+    info.update();
+}
 
-	// function zoomToFeature(e) {
-	// 	map.fitBounds(e.target.getBounds());
-	// }
+// function zoomToFeature(e) {
+// 	map.fitBounds(e.target.getBounds());
+// }
 
-  	function highlightFeature2(c) {
-		var layer3 = c.target;
+	function highlightFeature2(c) {
+	var layer3 = c.target;
 
-		layer3.setStyle({
-			weight: 1,
-			stroke: true,
-			color: 'blue',
-			fill: true,
-			fillColor: 'blue',
-			dashArray: '',
-			fillOpacity: 0.2
-		});
-        info.update(layer3.feature.properties);
-	}
+	layer3.setStyle({
+		weight: 1,
+		stroke: true,
+		color: 'blue',
+		fill: true,
+		fillColor: 'blue',
+		dashArray: '',
+		fillOpacity: 0.2
+	});
+      info.update(layer3.feature.properties);
+}
 
-  function styleprovinces(feature) {
-    return {
-        //fillColor: getColor(feature.properties.osm_id),
-        fillColor: '#ffffff',
-        weight: 2,
-        opacity: 1,
-        color: 'red',
-        //dashArray: '3',
-        fillOpacity: 0
-    };
+function styleprovinces(feature) {
+  return {
+      //fillColor: getColor(feature.properties.osm_id),
+      fillColor: '#ffffff',
+      weight: 2,
+      opacity: 1,
+      color: 'red',
+      //dashArray: '3',
+      fillOpacity: 0
+  };
 }
 
 function style(feature) {
-    return {
-        //fillColor: getColor(feature.properties.osm_id),
-        fillColor: '#ffffff',
-        weight: 1,
-        opacity: 1,
-        color: '#3388ff',
-        //dashArray: '3',
-        fillOpacity: 0
-    };
+  return {
+      //fillColor: getColor(feature.properties.osm_id),
+      fillColor: '#ffffff',
+      weight: 1,
+      opacity: 1,
+      color: '#3388ff',
+      //dashArray: '3',
+      fillOpacity: 0
+  };
 }
 
 // L.geoJson(statesData, {style: style}).addTo(map)
 
 
 $.getJSON("data/proc/communesReg.geojson",function(data3){
-		geojsonfile3 = L.geoJson(data3,{
-			       style: style,
-		            onEachFeature: function (feature, layer3) {
-		             layer3.on({
-      				      mouseover: highlightFeature2,
-      				      mouseout: resetHighlight2,
-                    click: toggleMarkers
-	                });
-		           }
-	}).addTo(communes);
+	geojsonfile3 = L.geoJson(data3,{
+		       style: style,
+	            onEachFeature: function (feature, layer3) {
+	             layer3.on({
+    				      mouseover: highlightFeature2,
+    				      mouseout: resetHighlight2,
+                  click: toggleMarkers
+                });
+	           }
+}).addTo(communes);
 });
 
 var Icon = L.Icon.extend({
-  options:{
-      iconSize: [30,30],
-      iconAnchor: [18,18],
-      popupAnchor: [0,-6]
-  }
+options:{
+    iconSize: [30,30],
+    iconAnchor: [18,18],
+    popupAnchor: [0,-6]
+}
 });
 
 // Create specific icons
 var ca = new Icon({iconUrl: 'MJS_icones/Jeunesse/PNG_1X/CA1.png'});
 var ce = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/CE1.png'});
-var cfp = new Icon({iconUrl: 'MJS_icones/Affaires Féminines/PNG_1X/CFP1.png'});
+var cfp = new Icon({iconUrl: 'MJS_icones/Affaires_Feminines/PNG_1X/CFP1.png'});
 var csj = new Icon({iconUrl: 'MJS_icones/Jeunesse/PNG_1X/CSJ1.png'});
 var cspi = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/CSPI1.png'});
 var ct = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/CT1.png'});
-var ff = new Icon({iconUrl: 'MJS_icones/Affaires Féminines/PNG_1X/FF1.png'});
-var ge = new Icon({iconUrl: 'MJS_icones/Affaires Féminines/PNG_1X/GE1.png'});
+var ff = new Icon({iconUrl: 'MJS_icones/Affaires_Feminines/PNG_1X/FF1.png'});
+var ge = new Icon({iconUrl: 'MJS_icones/Affaires_Feminines/PNG_1X/GE1.png'});
 var mj = new Icon({iconUrl: 'MJS_icones/Jeunesse/PNG_1X/MJ1.png'});
 var pa = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/PA1.png'});
 var po = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/POO1.png'});
