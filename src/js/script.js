@@ -183,6 +183,8 @@ function toggleProvinces(p) {
     }
     else {
       map.addLayer(commLayers[cm]);
+      //add province name to province
+      commLayers[cm].bindTooltip(commLayers[cm].feature.properties.PROVINCE,{direction:'center',permanent:true}).openTooltip();
     }
   }
   map.removeLayer(regions);
