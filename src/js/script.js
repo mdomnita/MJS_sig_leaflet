@@ -44,15 +44,59 @@ var map = L.map('map', {
 	var info = L.control();
 
 info.onAdd = function (map) {
-	this._div = L.DomUtil.create('div', 'info');
+	this._div = L.DomUtil.create('div');
 	this.update();
 	return this._div;
 };
 
 info.update = function (props) {
-	this._div.innerHTML = '<h4>Morocco</h4>' +  (props ?
-		'<b>' + props.name + '</b>' + '<h5>' + 'Population: ' + ((props.Population)? props.Population : 'N/A')  + '</h5>' 
-		: 'Hover over a commune');
+	this._div.innerHTML =
+	 `<div class="informationBox">
+		 <h3>Informations</h3>
+		 <p>Khiemiset</p>
+		 <div class="populationBox">
+			 <h3>Population<h3>
+			 <div class="Population-taginfo">
+				 <span><i class="fa fa-users"></i><p>4.000.000</p></span>
+				 <span><i class="fa fa-users"></i><p>4.000.000</p></span>
+				 <span><i class="fa fa-users"></i><p>4.000.000</p></span>
+				 <span><i class="fa fa-users"></i><p>4.000.000</p></span>
+			 </div>
+			 <div class="cateories-box">
+				 <h3>Categories</h3>
+				 <div class="categories-scroll">
+					<div class="cat-row">
+						<p>Parent test <b>(5)</b></p>
+						<li>Child test</li>
+						<li>Child test</li>
+						<li>Child test</li>
+					</div>
+					<div class="cat-row">
+						<p>Parent test <b>(5)</b></p>
+						<li>Child test</li>
+						<li>Child test</li>
+						<li>Child test</li>
+					</div>
+					<div class="cat-row">
+						<p>Parent test <b>(5)</b></p>
+						<li>Child test</li>
+						<li>Child test</li>
+						<li>Child test</li>
+					</div>
+					<div class="cat-row">
+						<p>Parent test <b>(5)</b></p>
+						<li>Child test</li>
+						<li>Child test</li>
+						<li>Child test</li>
+					</div>
+				 </div>
+			 </div>
+		 </div>
+	 </div>`;
+
+	// this._div.innerHTML = '<h4>Morocco</h4>' +
+	//   (props ?'<b>' + props.name + '</b>' + '<h5>' + 'Population: ' + ((props.Population)? props.Population : 'N/A')  + '</h5>' 
+	// 	: 'Hover over a commune');
 };
 info.addTo(map);
 
@@ -338,8 +382,8 @@ $.getJSON("data/proc/communesReg.geojson",function(data3){
 
 var Icon = L.Icon.extend({
 options:{
-    iconSize: [30,30],
-    iconAnchor: [18,18],
+    iconSize: [18,18],
+    iconAnchor: [5,5],
     popupAnchor: [0,-6]
 }
 });
