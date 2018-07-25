@@ -51,7 +51,7 @@ info.onAdd = function (map) {
 
 info.update = function (props) {
 	this._div.innerHTML = '<h4>Morocco</h4>' +  (props ?
-		'<b>' + props.name + '</b>' + '<h5>' + 'Population: ' + props.Population  + '</h5>' 
+		'<b>' + props.name + '</b>' + '<h5>' + 'Population: ' + ((props.Population)? props.Population : 'N/A')  + '</h5>' 
 		: 'Hover over a commune');
 };
 info.addTo(map);
@@ -183,6 +183,8 @@ function toggleProvinces(p) {
     }
     else {
       map.addLayer(commLayers[cm]);
+      //add province name to province
+      commLayers[cm].bindTooltip(commLayers[cm].feature.properties.PROVINCE,{direction:'center',permanent:true}).openTooltip();
     }
   }
   map.removeLayer(regions);
@@ -497,4 +499,3 @@ var tpjng = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJNG1.png'});
 		$(this).addClass('active');
 		$("#"+tab_id).addClass('active');
 	})
-
