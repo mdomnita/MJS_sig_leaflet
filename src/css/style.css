@@ -178,6 +178,7 @@ img.leaflet-marker-icon{
 	transition: 0.1s;
 	right: -500px;
 	opacity: 0;
+	z-index: 9999;
 }
 .informationBox.active{
 	right: 10px;
