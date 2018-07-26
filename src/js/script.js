@@ -93,6 +93,7 @@ info.update = function (props) {
 			 </div>
 		 </div>
 	 </div>`;
+	 //-- Hey metai .. you can use ${variable name} in this html.
 
 	// this._div.innerHTML = '<h4>Morocco</h4>' +
 	//   (props ?'<b>' + props.name + '</b>' + '<h5>' + 'Population: ' + ((props.Population)? props.Population : 'N/A')  + '</h5>' 
