@@ -433,3 +433,8 @@ img.leaflet-marker-icon{
 	position: relative;
 	top: 45px;
 }
+
+.checkerArea .scroll-check{
+	height: 250px;
+	overflow: auto;
+}
