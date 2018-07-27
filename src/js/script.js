@@ -49,6 +49,7 @@ info.onAdd = function (map) {
   return this._div;
 };
 
+
 info.update = function (props) {
   this._div.innerHTML =
    `<div class="informationBox">
@@ -56,7 +57,7 @@ info.update = function (props) {
      <p>Khiemiset</p>
      <div class="populationBox">
        <h3>Population<h3>
-       <div class="Population-taginfo">
+       <div class="population-taginfo">
          <span><i class="fa fa-users"></i><p>4.000.000</p></span>
          <span><i class="fa fa-users"></i><p>4.000.000</p></span>
          <span><i class="fa fa-users"></i><p>4.000.000</p></span>
@@ -532,8 +533,6 @@ var tpjng = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJNG1.png'});
 // });
 
 //-- popup tabs
-
-
   $(document).on("click",".singleTab",function(){
     var tab_id = $(this).attr('data-tab');
 
@@ -543,3 +542,21 @@ var tpjng = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJNG1.png'});
     $(this).addClass('active');
     $("#"+tab_id).addClass('active');
   })
+
+//-- Information box expand/collapse
+$(document).ready(function() {
+	$('.information-collapse').on('click', function(e) {
+		$('.information-collapse .bar').toggleClass('active');
+	  $('.informationBox').toggleClass('active');
+		  e.preventDefault();
+	  });
+  });
+
+  //-- Filter box expand/collapse
+$(document).ready(function() {
+	$('.filter-collapse').on('click', function(e) {
+		$('.filter-collapse').toggleClass('active');
+	  $('.filterBox').toggleClass('active');
+		  e.preventDefault();
+	  });
+  });
