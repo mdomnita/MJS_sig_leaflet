@@ -55,23 +55,12 @@ var categories = {
 	}
 }
 
-
-// 			<h3>Infrastucture Jeunesse</h3>
-// 			<div class="scroll-check">
-// 				<div class="type-check-sec">
-// 					<label class="main"><input type="checkbox"/><p>Parent check</p></label>
-// 					<label><input type="checkbox"/><p>Child check</p></label>
-// 					<label><input type="checkbox"/><p>Child check</p></label>
-// 					<label><input type="checkbox"/><p>Child check</p></label>
-// 				</div>
-// 			</div>
-
 // <div class="checkerArea">
 var divPart = document.getElementById('checkerArea');
 divPart.innerHTML = '';
 for (el in categories) {
+	//<h3>Infrastucture Jeunesse</h3>
 	//create categories html. First level are headers
-	console.log(el);
 	var div1 = document.createElement('div');
 	div1.className = "scroll-check";
 	var h3 = document.createElement('h3');
@@ -82,18 +71,19 @@ for (el in categories) {
 	if (typeof categories[el] === 'object') {
 		//second velvel are type-check-sec
 		var lv1 = categories[el];
-		console.log (Object.keys(lv1));
 		//second are types
+		//Sport, Enfance,...
 		for (var l1 in lv1) {
 			var lv2 = lv1[l1];
 			var div2 = document.createElement('div');
 			div2.className = "type-check-sec";
 
 			//create first level checkbox
-			console.log(lv2);
 			var label = document.createElement('label');
 			label.className='main';
 			var input = document.createElement('input');
+			input.id = l1;
+			$(input).on('click',function(){checkChildren(this)});
 			input.setAttribute("type", "checkbox");
 			var p = document.createElement('p');
 			p.appendChild(document.createTextNode(l1));
@@ -102,14 +92,16 @@ for (el in categories) {
 			div2.appendChild(label);
 
 			if (typeof lv2 === 'object') {
+				console.log(l1);
 				//third level are simple label checkboxes
 				for (var l2 in lv2) {
 					var lv3 = lv2[l2];
-					console.log(lv3);
 					var label = document.createElement('label');
 					// label.className='main';
 					var input = document.createElement('input');
 					input.setAttribute("type", "checkbox");
+			$(input).on('click',function(){checkParent(this)});
+					input.setAttribute("data-parent", l1);
 					var p = document.createElement('p');
 					p.appendChild(document.createTextNode(lv3));
 					label.appendChild(input);
@@ -122,4 +114,19 @@ for (el in categories) {
 		// div1.appendChild(h3)
 		divPart.appendChild(div1);
 	}
+}
+
+function checkChildren(input) {
+	console.log("check children");
+	var checked = input.checked;
+	var cat = input.id;
+	$('[data-parent="Sport"]').prop('checked', checked);
+	console.log(input);
+}
+
+function checkParent(input) {
+	console.log("check parent");
+	var id = input.dataset.parent;
+	$('#'+id).prop('checked',false);
+	console.log(input);
 }
