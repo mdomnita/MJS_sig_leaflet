@@ -94,10 +94,6 @@ info.update = function (props) {
        </div>
      </div>
    </div>`;
-
-  // this._div.innerHTML = '<h4>Morocco</h4>' +
-  //   (props ?'<b>' + props.name + '</b>' + '<h5>' + 'Population: ' + ((props.Population)? props.Population : 'N/A')  + '</h5>' 
-  //  : 'Hover over a commune');
 };
 info.addTo(map);
 
@@ -105,7 +101,6 @@ info.addTo(map);
 var geojsonfile1 = null;
 var geojsonfile2 = null;
 var geojsonfile3 = null;
-var geojsonmarkers = null;
 var geojsonmrk = null;
   
 // Get GeoJSON and put on it on the map when it loads
@@ -550,6 +545,11 @@ $(document).ready(function() {
 	  $('.informationBox').toggleClass('active');
 		  e.preventDefault();
 	  });
+    // prevenr zoom in map on mousewheel IE9, Chrome, Safari, Opera
+    $('.informationBox').on("mousewheel", function(e) { e.stopPropagation() });
+    // Firefox
+    $('.informationBox').on("DOMMouseScroll", function(e) { e.stopPropagation() });
+
   });
 
   //-- Filter box expand/collapse
@@ -559,4 +559,9 @@ $(document).ready(function() {
 	  $('.filterBox').toggleClass('active');
 		  e.preventDefault();
 	  });
+    // prevenr zoom in map on mousewheel IE9, Chrome, Safari, Opera
+    $('.filterBox').on("mousewheel", function(e) { e.stopPropagation() });
+    // Firefox
+    $('.filterBox').on("DOMMouseScroll", function(e) { e.stopPropagation() });
+
   });
