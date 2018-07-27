@@ -120,7 +120,7 @@ function checkChildren(input) {
 	console.log("check children");
 	var checked = input.checked;
 	var cat = input.id;
-	$('[data-parent="Sport"]').prop('checked', checked);
+	$('[data-parent="'+cat+'"]').prop('checked', checked);
 	console.log(input);
 }
 
