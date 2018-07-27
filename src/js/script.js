@@ -212,6 +212,8 @@ $.getJSON("data/region_Maroc_bis.geojson",function(data1){
 function toggleProvinces(p) {
   p.originalEvent.stopPropagation();
   var prov = p.target;
+  var myBounds = prov.getBounds().pad(0.02);
+  setTimeout(function() { map.fitBounds(myBounds) }, 0);
   var provCode = prov.feature.properties.NAME;
   console.log(provCode);
   var commLayers = provinces.getLayers()[0].getLayers();
@@ -234,6 +236,8 @@ function toggleProvinces(p) {
 function toggleCommunes(p) {
   p.originalEvent.stopPropagation();
   var prov = p.target;
+  var myBounds = prov.getBounds().pad(0.02);
+  setTimeout(function() { map.fitBounds(myBounds) }, 0);
   var provCode = prov.feature.properties.CODEPROVIN;
   console.log(provCode);
   var commLayers = communes.getLayers()[0].getLayers();
