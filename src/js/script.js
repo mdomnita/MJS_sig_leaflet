@@ -220,22 +220,80 @@ function toggleMarkers(p) {
 
   var myBounds = prov.getBounds().pad(0.02);
   setTimeout(function() { map.fitBounds(myBounds) }, 0);
-  // var provCode = prov.feature.properties.osm_id;
-  // console.log(provCode);
-  // var commLayers = allMarkers.getLayers();
-  // //go through all communes, hide all from other provinces
-  // clusters.clearLayers();
-  // map.addLayer(clusters);
-  // // var markerz = commLayers[0].getLayers();
-  // for (var cm in commLayers) {
-  //   if (commLayers[cm].feature.properties.osm_id !== provCode) {
-  //     clusters.removeLayer(commLayers[cm]);
-  //   }
-  //   else {
-  //     clusters.addLayer(commLayers[cm]);
-  //   }
-  // }
-  // document.querySelectorAll('[type = "checkbox"]')[0].disabled = false;
+  var frag = fillComInfo(prov);
+  document.getElementById('provInfo').innerHTML = '';
+  document.getElementById('provInfo').appendChild(frag);
+  $('.population-taginfo span p').html(prov.feature.properties['Population'] ? prov.feature.properties['Population'] : 'N/A');
+  fillCommMarkTyp(prov);
+}
+
+function  fillComInfo(prov) {
+  console.log(prov);
+  var frag = document.createDocumentFragment();
+  //add all info for a province. Other attributes can be added here.
+  var attrib = ['name'];
+  for (att in attrib)
+  {
+    var p = document.createElement('p');
+    var span = document.createElement('span');
+    span.className = 'titl';
+    span.appendChild(document.createTextNode(attrib[att].charAt(0).toUpperCase() + attrib[att].slice(1)+': '));
+    p.appendChild(span);
+    p.appendChild(document.createTextNode(prov.feature.properties[attrib[att]] ? prov.feature.properties[attrib[att]] : 'N/A'));
+    frag.appendChild(p);
+  }
+  return frag;
+}
+
+function fillCommMarkTyp(prov) {
+  //create object with number of each feature in comune
+  var cInfo = {};
+  // var checkboxes = document.getElementsByClassName('markerCat');
+  for (var aC in markers) {
+    if (prov.feature.properties.osm_id === markers[aC].feature.properties.osm_id) {
+      //found a marker in commune, create key in object for it or add to count
+      var dType = markers[aC].feature.properties.TYPE.trim();
+      //also store secteur, makes it much easier when creating html. can sdo same for first level
+      if (!cInfo.hasOwnProperty(apartenence[dType].SECTEUR)) cInfo[apartenence[dType].SECTEUR] = {};
+      if (cInfo[apartenence[dType].SECTEUR].hasOwnProperty(dType)) {
+        cInfo[apartenence[dType].SECTEUR][dType]++;
+      }
+      else {
+        cInfo[apartenence[dType].SECTEUR][dType] = 1;
+      }
+    }
+  }
+  //now Cinfo contains all marjers of each type, fill info box.
+  //cinfo has number of markers now, create structure in right panel
+  var frag = document.createDocumentFragment();
+  if (typeof cInfo === 'object') {
+    //second velvel are type-check-sec
+    var lv1 = cInfo;
+    //second are types
+    //Sport, Enfance,...
+    for (var l1 in lv1) {
+      var lv2 = lv1[l1];
+      var div2 = document.createElement('div');
+      div2.className = "cat-row";
+      //create first level
+      var p = document.createElement('p');
+      p.appendChild(document.createTextNode(l1));
+      div2.appendChild(p);
+      if (typeof lv2 === 'object') {
+        //third level are simple label checkboxes
+        for (var l2 in lv2) {
+          var lv3 = lv2[l2];
+          //reuse p, no problem.
+          var p = document.createElement('li');
+          p.appendChild(document.createTextNode(apartenence[l2].TYPE+': '+lv3));
+          div2.appendChild(p);
+        }
+      }
+      frag.appendChild(div2);
+    }
+    $('.categories-scroll').html(frag);
+    console.log(cInfo);
+  }
 }
 
 //hover province colors
@@ -323,19 +381,6 @@ function style(feature) {
   };
 }
 
-function checkClusterLayers() {
-  // var checkboxes = document.getElementsByClassName('markerCat');
-  for (var aC in markers) {
-    var dType = markers[aC].feature.properties.TYPE.trim();
-    if ($('[data-type="'+dType+'"]:checked').length) {
-      toggleMarker(markers[aC],false);
-    }
-    else {
-      toggleMarker(markers[aC],true);
-    }
-  }
-}
-
 //hide or show a marker according to parameter
 function toggleMarker(marker,hide) {
   //by default show the marker
@@ -361,7 +406,7 @@ $.getJSON("data/proc/communesReg.geojson",function(data3){
                   click: toggleMarkers
                 });
              }
-}).addTo(communes);
+  }).addTo(communes);
 });
 
 var Icon = L.Icon.extend({
