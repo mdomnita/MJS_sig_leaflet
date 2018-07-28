@@ -169,22 +169,23 @@ img.leaflet-marker-icon{
 
 .informationBox{
 	max-width: 500px;
-	background: #fff;
-	padding: 20px;
-	border-radius: 7px;
-	box-shadow: 0px 0px 4px 1px rgba(0, 0, 0, 0.07);
-	position: relative;
-	top: 40px;
-	transition: 0.1s;
-	/*right: -500px;*/
-	opacity: 0;
-	display:none;
-	z-index: 9999;
+    background: #fff;
+    padding: 20px;
+    border-radius: 7px;
+    box-shadow: 0px 0px 4px 1px rgba(0, 0, 0, 0.07);
+    position: absolute;
+    top: 130px;
+    transition: 0.1s;
+    right: -500px;
+    opacity: 0;
+    display: none;
+    z-index: 9999;
+    left: auto;
 }
 .informationBox.active{
 	right: 10px;
 	opacity: 1;
-	display:block;
+	display:inline-block;
 }
 .informationBox > h3{
 	margin: 0;

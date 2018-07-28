@@ -54,48 +54,7 @@ info.onAdd = function (map) {
 
 info.update = function (props) {
   this._div.innerHTML =
-   `<div class="informationBox">
-     <h3>Informations</h3>
-     <p>Khiemiset</p>
-     <div class="populationBox">
-       <h3>Population<h3>
-       <div class="population-taginfo">
-         <span><i class="fa fa-users"></i><p>4.000.000</p></span>
-         <span><i class="fa fa-users"></i><p>4.000.000</p></span>
-         <span><i class="fa fa-users"></i><p>4.000.000</p></span>
-         <span><i class="fa fa-users"></i><p>4.000.000</p></span>
-       </div>
-       <div class="cateories-box">
-         <h3>Categories</h3>
-         <div class="categories-scroll">
-          <div class="cat-row">
-            <p>Parent test <b>(5)</b></p>
-            <li>Child test</li>
-            <li>Child test</li>
-            <li>Child test</li>
-          </div>
-          <div class="cat-row">
-            <p>Parent test <b>(5)</b></p>
-            <li>Child test</li>
-            <li>Child test</li>
-            <li>Child test</li>
-          </div>
-          <div class="cat-row">
-            <p>Parent test <b>(5)</b></p>
-            <li>Child test</li>
-            <li>Child test</li>
-            <li>Child test</li>
-          </div>
-          <div class="cat-row">
-            <p>Parent test <b>(5)</b></p>
-            <li>Child test</li>
-            <li>Child test</li>
-            <li>Child test</li>
-          </div>
-         </div>
-       </div>
-     </div>
-   </div>`;
+   ``;
 };
 info.addTo(map);
 
@@ -571,7 +530,7 @@ $(document).ready(function() {
 		$('.information-collapse .bar').toggleClass('active');
 	  $('.informationBox').toggleClass('active');
 		  e.preventDefault();
-	  });
+    });
     // prevenr zoom in map on mousewheel IE9, Chrome, Safari, Opera
     $('.informationBox').on("mousewheel", function(e) { e.stopPropagation() });
     // Firefox
