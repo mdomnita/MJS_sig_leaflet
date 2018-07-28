@@ -176,7 +176,7 @@ img.leaflet-marker-icon{
 	position: relative;
 	top: 40px;
 	transition: 0.1s;
-	right: -500px;
+	/*right: -500px;*/
 	opacity: 0;
 	display:none;
 	z-index: 9999;
@@ -325,11 +325,13 @@ img.leaflet-marker-icon{
     top: 160px;
 	transition: 0.1s;
 	z-index: 9999;
-	left: 0px;
-    left: -480px;
+	/*left: 0px;*/
+  left: -480px;
+	/*display:none;*/
 }
 .filterBox.active{
 	left: 0;
+	/*display:block;*/
 }
 .filterBox .search{
 	position: relative;

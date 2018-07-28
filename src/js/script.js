@@ -23,12 +23,14 @@ var min = 10000 ;
 var cZoom = 0;
 
 
+//markersis a list of all markers from all categories, even hidden
+var markers = [];
 //vars for layers will be shown on layer control
-var markers = L.layerGroup();
-var Khemissetmrk = L.layerGroup();
 var regions = L.layerGroup();
 var provinces = L.layerGroup();
 var communes = L.layerGroup();
+//clusters hold the categories shown on the map
+var clusters = L.markerClusterGroup();
 
 var map = L.map('map', {
   center: [33.80, -6.21],                  //[29.38217507514529, -8.7451171875],
@@ -36,12 +38,12 @@ var map = L.map('map', {
   layers: [regions]
 });
 
-  var basemap1 = L.tileLayer('https://api.mapbox.com/styles/v1/sidgis/cjj8lafxc3f032snzbhbhxe7y/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoic2lkZ2lzIiwiYSI6ImM3RE1lZE0ifQ.LuNNRrO9LcVKs2dN_HvVBg', {
+var basemap1 = L.tileLayer('https://api.mapbox.com/styles/v1/sidgis/cjj8lafxc3f032snzbhbhxe7y/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoic2lkZ2lzIiwiYSI6ImM3RE1lZE0ifQ.LuNNRrO9LcVKs2dN_HvVBg', {
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
   
-  var info = L.control();
+var info = L.control();
 
 info.onAdd = function (map) {
   this._div = L.DomUtil.create('div');
@@ -215,7 +217,6 @@ function toggleProvinces(p) {
   var myBounds = prov.getBounds().pad(0.02);
   setTimeout(function() { map.fitBounds(myBounds) }, 0);
   var provCode = prov.feature.properties.NAME;
-  console.log(provCode);
   var commLayers = provinces.getLayers()[0].getLayers();
   //go through all provinces, hide all from other provinces
   map.addLayer(provinces);
@@ -239,7 +240,6 @@ function toggleCommunes(p) {
   var myBounds = prov.getBounds().pad(0.02);
   setTimeout(function() { map.fitBounds(myBounds) }, 0);
   var provCode = prov.feature.properties.CODEPROVIN;
-  console.log(provCode);
   var commLayers = communes.getLayers()[0].getLayers();
   //go through all communes, hide all from other provinces
   map.addLayer(communes);
@@ -364,8 +364,33 @@ function style(feature) {
   };
 }
 
-// L.geoJson(statesData, {style: style}).addTo(map)
+function checkClusterLayers() {
+  // var checkboxes = document.getElementsByClassName('markerCat');
+  for (var aC in markers) {
+    var dType = markers[aC].feature.properties.TYPE.trim();
+    if ($('[data-type="'+dType+'"]:checked').length) {
+      toggleMarker(markers[aC],false);
+    }
+    else {
+      toggleMarker(markers[aC],true);
+    }
+  }
+}
 
+//hide or show a marker according to parameter
+function toggleMarker(marker,hide) {
+  //by default show the marker
+  if (typeof hide === 'undefined') hide = false;
+  if (clusters.hasLayer(marker) && hide) {
+    clusters.removeLayer(marker);
+  }
+  else if (map.hasLayer(marker) && hide) {
+    map.removeLayer(marker);
+  }
+  else if (!clusters.hasLayer(marker) && !hide) {
+    clusters.addLayer(marker);
+  }
+}
 
 $.getJSON("data/proc/communesReg.geojson",function(data3){
   geojsonfile3 = L.geoJson(data3,{
@@ -405,11 +430,8 @@ var sc = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/SC1.png'});
 var tgjg = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TGJG1.png'});
 var tgjng = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TGJNG1.png'});
 var to = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TO1.png'});
-var tpgj = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJG1.png'});
+var tpjg = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJG1.png'});
 var tpjng = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJNG1.png'});
-
-//visible markers are for the clicked commune, all markers are all markers on map (if needed)
-  var clusters = L.markerClusterGroup();
 
   $.getJSON("data/proc/markersReg.geojson",function(data5){
       geojsonmrk = L.geoJson(data5,{
@@ -443,49 +465,53 @@ var tpjng = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJNG1.png'});
 
         '</div>');
           }, pointToLayer: function (feature, latlng) {
-            if (feature.properties.TYPE == "CA"){
+            var mType = feature.properties.TYPE.trim();
+            if (mType === "CA"){
               var marker = L.marker(latlng,{icon: ca});
-            } else if (feature.properties.TYPE == "CE"){
+            } else if (mType === "CE"){
               var marker = L.marker(latlng,{icon: ce});
-            } else if (feature.properties.TYPE == "CFP"){
+            } else if (mType === "CFP"){
               var marker = L.marker(latlng, {icon: cfp});
-            } else if (feature.properties.TYPE == "CSJ"){
+            } else if (mType === "CSJ"){
               var marker = L.marker(latlng,{icon: csj});
-            } else if (feature.properties.TYPE == "CSPI"){
+            } else if (mType === "CSPI"){
               var marker = L.marker(latlng, {icon: cspi});
-            } else if (feature.properties.TYPE == "CT"){
+            } else if (mType === "CT"){
               var marker = L.marker(latlng,{icon: ct});
-            } else if (feature.properties.TYPE == "FF"){
+            } else if (mType === "FF"){
               var marker = L.marker(latlng,{icon: ff});
-            } else if (feature.properties.TYPE == "GE"){
+            } else if (mType === "GE"){
               var marker = L.marker(latlng,{icon: ge});
-            } else if (feature.properties.TYPE == "MJ"){
+            } else if (mType === "MJ"){
               var marker = L.marker(latlng,{icon: mj});
-            } else if (feature.properties.TYPE == "PA"){
+            } else if (mType === "PA"){
               var marker = L.marker(latlng,{icon: pa});
-            } else if (feature.properties.TYPE == "PO"){
+            } else if (mType === "PO"){
               var marker = L.marker(latlng,{icon: poo});
-            } else if (feature.properties.TYPE == "POO"){
+            } else if (mType === "POO"){
               var marker = L.marker(latlng,{icon: poo});
-            } else if (feature.properties.TYPE == "SC"){
+            } else if (mType === "SC"){
               var marker = L.marker(latlng,{icon: sc});
-            } else if (feature.properties.TYPE == "TGJG"){
+            } else if (mType === "TGJG"){
               var marker = L.marker(latlng,{icon: tgjg});
-            } else if (feature.properties.TYPE == "TGJNG"){
+            } else if (mType === "TGJNG"){
               var marker = L.marker(latlng,{icon: tgjng});
-            } else if (feature.properties.TYPE == "TO"){
+            } else if (mType === "TO"){
               var marker = L.marker(latlng,{icon: to});
-            } else if (feature.properties.TYPE == "TPGJ"){
-              var marker = L.marker(latlng,{icon: tpgj});
-            } else if (feature.properties.TYPE == "TPJNG"){
+            } else if (mType === "TPJG"){
+              var marker = L.marker(latlng,{icon: tpjg});
+            } else if (mType === "TPJNG"){
               var marker = L.marker(latlng,{icon: tpjng});
             }
+          //markers will always have all markers from map. clusters only have the ones shown after filtering
+          if (marker) {
+            markers.push(marker);
+          }
           return marker;
           }
     });
       //add to markers only, add to cluster only on commune click (request)
       clusters.addLayer(geojsonmrk);
-      // .addTo(Khemissetmrk);
   });
   //clusters.addLayer(geojsonmrk);
   map.addLayer(clusters);
@@ -497,7 +523,6 @@ var tpjng = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJNG1.png'});
 // vars for IDs of layers control 
   var overlays = {
     "Markers": clusters,
-    // "Markers of Khemisset": Khemissetmrk
     "Communes": communes,
     "Provinces": provinces,
     "Regions": regions
@@ -507,8 +532,6 @@ var tpjng = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJNG1.png'});
     hideSingleBase: false,
     collapsed: false
   }).addTo(map);
-
-
 
 //  var types = [CA, CE, CFP, CSJ, CSPI, CT, FF, GE, MJ, PA, POO, POO, SC, TGJG, TGJNG, TO, TPGJ, TPJNG];
 
@@ -553,7 +576,6 @@ $(document).ready(function() {
     $('.informationBox').on("mousewheel", function(e) { e.stopPropagation() });
     // Firefox
     $('.informationBox').on("DOMMouseScroll", function(e) { e.stopPropagation() });
-
   });
 
   //-- Filter box expand/collapse
@@ -567,5 +589,6 @@ $(document).ready(function() {
     $('.filterBox').on("mousewheel", function(e) { e.stopPropagation() });
     // Firefox
     $('.filterBox').on("DOMMouseScroll", function(e) { e.stopPropagation() });
-
   });
+
+ 

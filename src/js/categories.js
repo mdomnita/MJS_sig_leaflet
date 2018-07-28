@@ -17,6 +17,7 @@ var categories = {
 			TP: "Terrain de Proximité",
 			BP: "Bassin de Plongeon",
 			POO: "Piscine Ouverte Olympique",
+			PO: "Piscine Olympique",
 			POSO: "Piscine Ouverte Semi Olympique",
 			PCO: "Piscine Couverte Olympique",
 			PCSO: "Piscine Couverte Semi Olympique",
@@ -85,6 +86,7 @@ for (el in categories) {
 			input.id = l1;
 			$(input).on('click',function(){checkChildren(this)});
 			input.setAttribute("type", "checkbox");
+			input.setAttribute("checked", true);
 			var p = document.createElement('p');
 			p.appendChild(document.createTextNode(l1));
 			label.appendChild(input);
@@ -92,7 +94,6 @@ for (el in categories) {
 			div2.appendChild(label);
 
 			if (typeof lv2 === 'object') {
-				console.log(l1);
 				//third level are simple label checkboxes
 				for (var l2 in lv2) {
 					var lv3 = lv2[l2];
@@ -100,8 +101,11 @@ for (el in categories) {
 					// label.className='main';
 					var input = document.createElement('input');
 					input.setAttribute("type", "checkbox");
-			$(input).on('click',function(){checkParent(this)});
+					input.setAttribute("checked", true);
+					$(input).on('click',function(){checkParent(this)});
 					input.setAttribute("data-parent", l1);
+					input.setAttribute("data-TYPE", l2);
+					input.className ="markerCat";
 					var p = document.createElement('p');
 					p.appendChild(document.createTextNode(lv3));
 					label.appendChild(input);
@@ -117,16 +121,16 @@ for (el in categories) {
 }
 
 function checkChildren(input) {
-	console.log("check children");
 	var checked = input.checked;
 	var cat = input.id;
-	$('[data-parent="'+cat+'"]').prop('checked', checked);
-	console.log(input);
+	$('[data-parent="'+cat+'"]').prop('checked', checked); 
+	//show/hide layers according to checkboxes
+	checkClusterLayers();
 }
 
 function checkParent(input) {
-	console.log("check parent");
 	var id = input.dataset.parent;
 	$('#'+id).prop('checked',false);
-	console.log(input);
+	//show/hide layers according to checkboxes
+	checkClusterLayers();
 }
