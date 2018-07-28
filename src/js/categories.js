@@ -54,7 +54,53 @@ var categories = {
 			GE: "Garderie d'Enfants",
 		},
 	}
-}
+};
+
+var apartenence = {
+      GS: {TYPE:"Grand Stade",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      CS: {TYPE:"Complexe Sportif",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      CiS: {TYPE:"Cité des Sports",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      VS: {TYPE:"Village Sportif",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      TGJG: {TYPE:"Terrain Grand Jeu - Gazonné",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      TGJNG: {TYPE:"Terrain Grand Jeu - Non Gazonné",CARTE:"Infrastructure Sport",SECTEUR:"Sport"}, 
+      CSPI: {TYPE:"Centre Socio Sportif de Proximité Intégré",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      TO: {TYPE:"Terrain Omnisport",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      TPJG: {TYPE:"Terrain Petit Jeu - Gazonné",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      TPJNG: {TYPE:"Terrain Petit Jeu - Non Gazonné",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      TVB: {TYPE:"Terrain de Volley Ball",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      TBB: {TYPE:"Terrain de Basket Ball",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      THB: {TYPE:"Terrain de Hand Ball",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      TP: {TYPE:"Terrain de Proximité",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      BP: {TYPE:"Bassin de Plongeon",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      POO: {TYPE:"Piscine Ouverte Olympique",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      PO: {TYPE:"Piscine Olympique",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      POSO: {TYPE:"Piscine Ouverte Semi Olympique",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      PCO: {TYPE:"Piscine Couverte Olympique",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      PCSO: {TYPE:"Piscine Couverte Semi Olympique",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      SC: {TYPE:"Salle Couverte",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      PA: {TYPE:"Piste d’Athlétisme",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      PBMX: {TYPE:"Piste BMX",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      SP: {TYPE:"Skates Park",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      CT: {TYPE:"Court de Tennis",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      Glf: {TYPE:"Golf",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      ChT: {TYPE:"Champs de Tir",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      CTA: {TYPE:"Centre de Tir à l'Arc",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      BN: {TYPE:"Base Nautique",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      CE: {TYPE:"Circuit d’Equitation",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      SSk: {TYPE:"Station de Ski",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      Vel: {TYPE:"Vélodrome",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      CR: {TYPE:"Centre de Refuge",CARTE:"Infrastructure Sport",SECTEUR:"Sport"},
+      MJ: {TYPE:'Maison de Jeunes',CARTE:"Infrastructure Jeunesse",SECTEUR:"Jeunesse"},
+      CSJ: {TYPE:'Centre au service de le Jeunesse',CARTE:"Infrastructure Jeunesse",SECTEUR:"Jeunesse"},
+      CSE: {TYPE:'Centre Socio Educatif',CARTE:"Infrastructure Jeunesse",SECTEUR:"Jeunesse"},
+      CA: {TYPE:"Centre d'Accueil",CARTE:"Infrastructure Jeunesse",SECTEUR:"Jeunesse"},
+      CV: {TYPE:"Colonie de Vacances",CARTE:"Infrastructure Jeunesse",SECTEUR:"Enfance"},
+      FAS: {TYPE:"Foyer d'Action Sociale",CARTE:"Infrastructure Jeunesse",SECTEUR:"Enfance"},
+      CPE: {TYPE:"Centre de Protection de l'Enfance",CARTE:"Infrastructure Jeunesse",SECTEUR:"Enfance"},
+      FF: {TYPE:"Foyer Féminin",CARTE:"Infrastructure Jeunesse",SECTEUR:"Affaires Féminines"},
+      CFP: {TYPE:"Centre de Formation Proféssionelle",CARTE:"Infrastructure Jeunesse",SECTEUR:"Affaires Féminines"},
+      GE: {TYPE:"Garderie d'Enfants",CARTE:"Infrastructure Jeunesse",SECTEUR:"Affaires Féminines"}
+};
 
 // <div class="checkerArea">
 var divPart = document.getElementById('checkerArea');
@@ -133,4 +179,17 @@ function checkParent(input) {
 	$('#'+id).prop('checked',false);
 	//show/hide layers according to checkboxes
 	checkClusterLayers();
+}
+
+function checkClusterLayers() {
+  // var checkboxes = document.getElementsByClassName('markerCat');
+  for (var aC in markers) {
+    var dType = markers[aC].feature.properties.TYPE.trim();
+    if ($('[data-type="'+dType+'"]:checked').length) {
+      toggleMarker(markers[aC],false);
+    }
+    else {
+      toggleMarker(markers[aC],true);
+    }
+  }
 }
