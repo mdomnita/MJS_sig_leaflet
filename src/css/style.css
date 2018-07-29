@@ -361,7 +361,8 @@ img.leaflet-marker-icon{
 	
 }
 .drop-select{
-	display: flex;
+	display:none;
+	/*display: flex;*/
 	flex-direction: row;
 }
 .drop-select select{
