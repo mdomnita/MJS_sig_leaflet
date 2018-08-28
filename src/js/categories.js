@@ -109,7 +109,7 @@ for (el in categories) {
 	//<h3>Infrastucture Jeunesse</h3>
 	//create categories html. First level are headers
 	var div1 = document.createElement('div');
-	div1.className = "scroll-check";
+	div1.className = "category-group";
 	var h3 = document.createElement('h3');
 	h3.innerHTML = el;
 	divPart.appendChild(h3)
