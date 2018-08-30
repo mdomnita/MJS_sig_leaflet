@@ -20,7 +20,10 @@ var states = {
 }
 
 var min = 10000 ;
+//czoom is user to check previous zoom when zooming on nap. 
 var cZoom = 0;
+// nozoom is a flag to not trigger zoomend on fitbounds (hides coommunes otherwise with no reason.)
+var noZoom = false;
 
 
 //markersis a list of all markers from all categories, even hidden
@@ -38,7 +41,7 @@ var map = L.map('map', {
   layers: [regions]
 });
 
-var basemap1 = L.tileLayer('https://api.mapbox.com/styles/v1/sidgis/cjj8lafxc3f032snzbhbhxe7y/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoic2lkZ2lzIiwiYSI6ImM3RE1lZE0ifQ.LuNNRrO9LcVKs2dN_HvVBg', {
+var basemap1 = L.tileLayer('https://api.mapbox.com/styles/v1/sidgis/cjld7y4h972ve2rs0mh9v5iv8/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoic2lkZ2lzIiwiYSI6ImNqa3phcGZ0djBwcXEzcG53eGVzNXRpdmQifQ.JO3UVPg-WqaXki7mKcQhAw', {
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
@@ -83,20 +86,27 @@ function resetHighlight(r) {
 map.on('zoomstart', function(z) {
   cZoom = z.target.getZoom();
 });
-//if user zooms out hide lower level layers
-map.on('zoomend', function(z) {
-  var aZoom = z.target.getZoom();
-  //hide communes on zoom 13
-  if (aZoom < cZoom && z.target.getZoom() < 11) {
-    map.removeLayer(communes);
-    map.addLayer(provinces);
-  }
-  //hide provinces on zoom 11
-  if (aZoom < cZoom && z.target.getZoom() < 8) {
-    map.removeLayer(provinces);
-    map.addLayer(regions);
-  }
-});
+
+checkZoomEnd();
+
+function checkZoomEnd() {
+  //if user zooms out hide lower level layers
+  map.on('zoomend', function(z) {
+    if (noZoom) return;
+    var aZoom = z.target.getZoom();
+    //hide communes on zoom 13
+    if (aZoom < cZoom && z.target.getZoom() < 11) {
+      map.removeLayer(communes);
+      map.addLayer(provinces);
+    }
+    //hide provinces on zoom 11
+    if (aZoom < cZoom && z.target.getZoom() < 8) {
+      map.removeLayer(provinces);
+      map.addLayer(regions);
+    }
+    noZoom = false;
+  });
+}
 
   function highlightFeature(r) {
   var layer1 = r.target;
@@ -124,7 +134,6 @@ function onEachFeature(feature, layer1) {
 
   function styleregions(feature) {
   return {
-      //fillColor: getColor(feature.properties.osm_id),
       fillColor: '#ffffff',
       weight: 3,
       opacity: 1,
@@ -134,14 +143,14 @@ function onEachFeature(feature, layer1) {
   };
 }
 
-$.getJSON("data/region_Maroc_bis.geojson",function(data1){
+$.getJSON("data/proc/region.geojson",function(data1){
     geojsonfile1 = L.geoJson(data1,{
-              style: styleregions,  
-              onEachFeature: function (feature, layer) {
-                layer.on({
-                  click: toggleProvinces
-                });
-              }
+      style: styleregions,  
+      onEachFeature: function (feature, layer) {
+        layer.on({
+          click: toggleProvinces
+        });
+      }
   }).addTo(regions);
 });
 
@@ -197,19 +206,34 @@ function toggleCommunes(p) {
   p.originalEvent.stopPropagation();
   var prov = p.target;
   var myBounds = prov.getBounds().pad(0.02);
-  setTimeout(function() { map.fitBounds(myBounds) }, 0);
-  var provCode = prov.feature.properties.CODEPROVIN;
+  setTimeout(function() { noZoom = true; map.fitBounds(myBounds) }, 0);
+  var provCode = prov.feature.properties.code_provi;
   var commLayers = communes.getLayers()[0].getLayers();
   //go through all communes, hide all from other provinces
   map.addLayer(communes);
   for (var cm in commLayers) {
-    if (commLayers[cm].feature.properties.CODEPROVIN !== provCode) {
+    if (commLayers[cm].feature.properties.code_provi !== provCode) {
       map.removeLayer(commLayers[cm]);
     }
     else {
       map.addLayer(commLayers[cm]);
     }
   }
+  //if user zooms out hide lower level layers
+  map.on('zoomend', function(z) {
+    var aZoom = z.target.getZoom();
+    //add tooltips to communes on zoom 13
+    if (z.target.getZoom() > 11 && map.hasLayer(communes)) {
+      for (var cm in commLayers) {
+        commLayers[cm].unbindTooltip();
+        if (map.hasLayer(commLayers[cm])) {
+          commLayers[cm].bindTooltip(commLayers[cm].feature.properties.commune,{permanent:true}).openTooltip();
+        }
+        else {
+        }
+      }
+    }
+  });
 }
 
 //click on commune zooms to it
@@ -245,12 +269,12 @@ function  fillComInfo(prov) {
   return frag;
 }
 
-function fillCommMarkTyp(prov) {
+function fillCommMarkTyp(comm) {
   //create object with number of each feature in comune
   var cInfo = {};
   // var checkboxes = document.getElementsByClassName('markerCat');
   for (var aC in markers) {
-    if (prov.feature.properties.osm_id === markers[aC].feature.properties.osm_id) {
+    if (comm.feature.properties.id === markers[aC].feature.properties.commune_id) {
       //found a marker in commune, create key in object for it or add to count
       var dType = markers[aC].feature.properties.TYPE.trim();
       //also store secteur, makes it much easier when creating html. can sdo same for first level
@@ -299,7 +323,6 @@ function fillCommMarkTyp(prov) {
 //hover province colors
 function styleprovinces(feature) {
   return {
-      //fillColor: getColor(feature.properties.osm_id),
       fillColor: '#ffffff',
       weight: 2,
       opacity: 1,
@@ -333,7 +356,7 @@ function getColor(d) {
                     '#FFEDA0';
 }
 
-    function resetHighlight2(c) {
+function resetHighlight2(c) {
   geojsonfile3.resetStyle(c.target);
     info.update();
 }
@@ -342,7 +365,7 @@ function getColor(d) {
 //  map.fitBounds(e.target.getBounds());
 // }
 
-  function highlightFeature2(c) {
+function highlightFeature2(c) {
   var layer3 = c.target;
 
   layer3.setStyle({
@@ -359,7 +382,6 @@ function getColor(d) {
 
 function styleprovinces(feature) {
   return {
-      //fillColor: getColor(feature.properties.osm_id),
       fillColor: '#ffffff',
       weight: 2,
       opacity: 1,
@@ -371,11 +393,10 @@ function styleprovinces(feature) {
 
 function style(feature) {
   return {
-      //fillColor: getColor(feature.properties.osm_id),
       fillColor: '#ffffff',
       weight: 1,
       opacity: 1,
-      color: '#3388ff',
+      color: '#3388ff', 
       //dashArray: '3',
       fillOpacity: 0
   };
