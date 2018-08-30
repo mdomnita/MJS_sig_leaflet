@@ -328,6 +328,7 @@ img.leaflet-marker-icon{
 	z-index: 9999;
 	/*left: 0px;*/
   left: -480px;
+  padding-bottom: 30px
 	/*display:none;*/
 }
 .filterBox.active{
@@ -386,6 +387,8 @@ img.leaflet-marker-icon{
 
 .filterBox .checkerArea{
 	padding: 30px;
+	height: 250px;
+    overflow: auto;
 }
 .filterBox .checkerArea h3{
 	margin-top: 0;
@@ -442,8 +445,8 @@ img.leaflet-marker-icon{
 }
 
 .checkerArea .scroll-check{
-	height: 250px;
-	overflow: auto;
+	/* height: 250px;
+	overflow: auto; */
 }
 
 .marker-cluster-small {
