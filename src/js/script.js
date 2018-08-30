@@ -23,7 +23,7 @@ var min = 10000 ;
 //czoom is user to check previous zoom when zooming on nap. 
 var cZoom = 0;
 // nozoom is a flag to not trigger zoomend on fitbounds (hides coommunes otherwise with no reason.)
-var noZoom = false;
+// var noZoom = false;
 
 
 //markersis a list of all markers from all categories, even hidden
@@ -92,7 +92,7 @@ checkZoomEnd();
 function checkZoomEnd() {
   //if user zooms out hide lower level layers
   map.on('zoomend', function(z) {
-    if (noZoom) return;
+    // if (noZoom) return;
     var aZoom = z.target.getZoom();
     //hide communes on zoom 13
     if (aZoom < cZoom && z.target.getZoom() < 11) {
@@ -104,7 +104,7 @@ function checkZoomEnd() {
       map.removeLayer(provinces);
       map.addLayer(regions);
     }
-    noZoom = false;
+    // noZoom = false;
   });
 }
 
@@ -206,7 +206,7 @@ function toggleCommunes(p) {
   p.originalEvent.stopPropagation();
   var prov = p.target;
   var myBounds = prov.getBounds().pad(0.02);
-  setTimeout(function() { noZoom = true; map.fitBounds(myBounds) }, 0);
+  setTimeout(function() { map.fitBounds(myBounds) }, 0);
   var provCode = prov.feature.properties.code_provi;
   var commLayers = communes.getLayers()[0].getLayers();
   //go through all communes, hide all from other provinces
