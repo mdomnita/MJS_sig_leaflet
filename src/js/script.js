@@ -22,8 +22,6 @@ var states = {
 var min = 10000 ;
 //czoom is user to check previous zoom when zooming on nap. 
 var cZoom = 0;
-// nozoom is a flag to not trigger zoomend on fitbounds (hides coommunes otherwise with no reason.)
-// var noZoom = false;
 
 
 //markersis a list of all markers from all categories, even hidden
@@ -33,7 +31,7 @@ var regions = L.layerGroup();
 var provinces = L.layerGroup();
 var communes = L.layerGroup();
 //clusters hold the categories shown on the map
-var clusters = L.markerClusterGroup();
+var clusters = L.markerClusterGroup({showCoverageOnHover:false});
 
 var map = L.map('map', {
   center: [33.80, -6.21],                  //[29.38217507514529, -8.7451171875],
@@ -54,6 +52,11 @@ info.onAdd = function (map) {
   return this._div;
 };
 
+var print = L.easyPrint({
+  title: 'Print',
+  position: 'topleft',
+  sizeModes: ['A4Portrait', 'A4Landscape']
+}).addTo(map);
 
 info.update = function (props) {
   this._div.innerHTML =
@@ -75,7 +78,7 @@ var markericon = L.icon({
   iconAnchor: [18,18]
 });
 //functions for hover and onClick on layers
-        var geohover;
+var geohover;
 
 function resetHighlight(r) {
   geojsonfile1.resetStyle(r.target);
@@ -92,19 +95,17 @@ checkZoomEnd();
 function checkZoomEnd() {
   //if user zooms out hide lower level layers
   map.on('zoomend', function(z) {
-    // if (noZoom) return;
     var aZoom = z.target.getZoom();
     //hide communes on zoom 13
-    if (aZoom < cZoom && z.target.getZoom() < 11) {
+    if (aZoom < cZoom && z.target.getZoom() < 11 && map.hasLayer(communes)) {
       map.removeLayer(communes);
       map.addLayer(provinces);
     }
     //hide provinces on zoom 11
-    if (aZoom < cZoom && z.target.getZoom() < 8) {
+    if (aZoom < cZoom && z.target.getZoom() < 8 && map.hasLayer(provinces)) {
       map.removeLayer(provinces);
       map.addLayer(regions);
     }
-    // noZoom = false;
   });
 }
 
@@ -175,31 +176,48 @@ $.getJSON("data/proc/region.geojson",function(data1){
     dashArray: '',
     fillOpacity: 0.2
   });
-      info.update(layer2.feature.properties);
+  info.update(layer2.feature.properties);
 }
 
 //todo: click on region shows province within
 function toggleProvinces(p) {
   p.originalEvent.stopPropagation();
-  var prov = p.target;
-  var myBounds = prov.getBounds().pad(0.02);
-  setTimeout(function() { map.fitBounds(myBounds) }, 0);
-  var provCode = prov.feature.properties.NAME;
-  var commLayers = provinces.getLayers()[0].getLayers();
-  //go through all provinces, hide all from other provinces
+  var region = p.target;
+  var center = region.getCenter();
+  setTimeout(function() { map.panTo(center) }, 0);
+  var regId = region.feature.properties.region_id;
+  var provLayers = provinces.getLayers()[0].getLayers();
+  //go through all provinces, hide all from other region
   map.addLayer(provinces);
-  for (var cm in commLayers) {
-    if (commLayers[cm].feature.properties.NAME !== provCode) {
-      map.removeLayer(commLayers[cm]);
+  toggleProvinceLabels(true);
+  for (var cm in provLayers) {
+    if (provLayers[cm].feature.properties.region_id !== regId) {
+      map.removeLayer(provLayers[cm]);
+      provLayers[cm].unbindTooltip();
     }
     else {
-      map.addLayer(commLayers[cm]);
+      map.addLayer(provLayers[cm]);
       //add province name to province
-      commLayers[cm].bindTooltip(commLayers[cm].feature.properties.PROVINCE,{direction:'center',permanent:true}).openTooltip();
+      provLayers[cm].bindTooltip(provLayers[cm].feature.properties.province,{direction:'center',permanent:true}).openTooltip();
     }
   }
   map.removeLayer(regions);
 }
+
+//add or remove lbels for provinces
+function toggleProvinceLabels(hide) {
+  if (hide) {
+      var provLayers = provinces.getLayers()[0].getLayers();
+      //go through all provinces, hide all from other region
+      for (var cm in provLayers) {
+        if (map.hasLayer(provLayers[cm])) {
+          // map.removeLayer(provLayers[cm]);
+          provLayers[cm].unbindTooltip();
+        }
+      }
+  }
+}
+
 
 //click on province shows communes within
 function toggleCommunes(p) {
