@@ -416,6 +416,7 @@ function highlightFeature2(c) {
     fillOpacity: 0.2
   });
   info.update(layer3.feature.properties);
+  $('.population-taginfo span p').html(layer3.feature.properties['population'] ? layer3.feature.properties['population'] : 'N/A');
   fillCommMarkTyp(layer3);
 }
 
