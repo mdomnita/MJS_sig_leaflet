@@ -313,13 +313,17 @@ function fillCommMarkTyp(comm) {
       //found a marker in commune, create key in object for it or add to count
       var dType = markers[aC].feature.properties.CATEGORIE.trim();
       //also store secteur, makes it much easier when creating html. can sdo same for first level
-      if (!cInfo.hasOwnProperty(apartenence[dType].SECTEUR)) cInfo[apartenence[dType].SECTEUR] = {};
-      if (cInfo[apartenence[dType].SECTEUR].hasOwnProperty(dType)) {
+      if (apartenence[dType] && apartenence[dType].SECTEUR && !cInfo.hasOwnProperty(apartenence[dType].SECTEUR)) { cInfo[apartenence[dType].SECTEUR] = {} }
+      //put something default for missing or incorrect data
+      else if ((!apartenence[dType] || !apartenence[dType].SECTEUR) && !cInfo.hasOwnProperty("Sport")) cInfo["Sport"] = {};
+      if (apartenence[dType] && apartenence[dType].SECTEUR && cInfo[apartenence[dType].SECTEUR] && cInfo[apartenence[dType].SECTEUR].hasOwnProperty(dType)) {
         cInfo[apartenence[dType].SECTEUR][dType]++;
       }
-      else {
+      else if (apartenence[dType] && apartenence[dType].SECTEUR) {
         cInfo[apartenence[dType].SECTEUR][dType] = 1;
       }
+      //add data for incorrect values
+      else cInfo["Sport"]["TGJG"] = (cInfo["Sport"].hasOwnProperty("TGJG")) ? cInfo["Sport"]["TGJG"] + 1 : 1;
     }
   }
   //now Cinfo contains all marjers of each type, fill info box.
@@ -577,6 +581,11 @@ var tpjng = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJNG1.png'});
               feature.properties.icon = tpjg;
               var marker = L.marker(latlng,feature.properties);
             } else if (mType === "TPJNG"){
+              feature.properties.icon = tpjng;
+              var marker = L.marker(latlng,feature.properties);
+            } 
+            //fallback option for wrong/incorrect data
+            else {
               feature.properties.icon = tpjng;
               var marker = L.marker(latlng,feature.properties);
             }
