@@ -416,6 +416,7 @@ function highlightFeature2(c) {
     fillOpacity: 0.2
   });
   info.update(layer3.feature.properties);
+  fillCommMarkTyp(layer3);
 }
 
 function styleprovinces(feature) {
