@@ -184,7 +184,7 @@ function checkParent(input) {
 function checkClusterLayers() {
   // var checkboxes = document.getElementsByClassName('markerCat');
   for (var aC in markers) {
-    var dType = markers[aC].feature.properties.TYPE.trim();
+    var dType = markers[aC].feature.properties.CATEGORIE.trim();
     if ($('[data-type="'+dType+'"]:checked').length) {
       toggleMarker(markers[aC],false);
     }

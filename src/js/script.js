@@ -1,28 +1,5 @@
-var states = {
-  "Khemisset" :{'population':281000,'etablissement':18 },
-  "Ait Mimoune" :{'population':8254,'etablissement':2 },
-  "Ait Yadine"  :{'population':20500,'etablissement':2 },
-  "Tiflet"  :{'population':86000,'etablissement':6 },
-  "Khemis Sidi Yahya" :{'population':6700,'etablissement':1 },
-  "M'Qam Tolba" :{'population':13500,'etablissement':2 },
-  "Sidi Allal El Bahraoui"  :{'population':281000,'etablissement':18 },
-  "Oulmes"  :{'population':18700,'etablissement':7 },
-  "Rommani" :{'population':12300,'etablissement':5 },
-  "Ain Essbite" :{'population':11000,'etablissement':1 },
-  "Brachoua"  :{'population':12000,'etablissement':2 },
-  "El Ganzra" :{'population':13200,'etablissement':2 },
-  "Maaziz"  :{'population':11500,'etablissement':1 },
-  "Tiddas"  :{'population':10000,'etablissement':1 },
-  "Ait Ichou" :{'population':10000,'etablissement':1 },
-  "Sidi Allal Lamsadder"  :{'population':7400,'etablissement':2 },
-  "Houdderane"  :{'population':6400,'etablissement':1 },
-  "Marchouch":{'population':10000,'etablissement':2 },
-}
-
-var min = 10000 ;
 //czoom is user to check previous zoom when zooming on nap. 
 var cZoom = 0;
-
 
 //markersis a list of all markers from all categories, even hidden
 var markers = [];
@@ -125,7 +102,8 @@ function checkZoomEnd() {
   });
 }
 
-function highlightFeature(r) {
+//highlight region
+function highlightRegion(r) {
   var layer1 = r.target;
   layer1.setStyle({
     weight: 2,
@@ -137,6 +115,7 @@ function highlightFeature(r) {
     fillOpacity: 0.2
   });
   info.update(layer1.feature.properties);
+  $('.categories-scroll').html("");
 }
 
   function styleregions(feature) {
@@ -155,7 +134,7 @@ $.getJSON("data/proc/region.geojson",function(data1){
       style: styleregions,  
       onEachFeature: function (feature, layer) {
         layer.on({
-          mouseover: highlightFeature,
+          mouseover: highlightRegion,
           mouseout: resetHighlight,
           click: toggleProvinces
         });
@@ -163,14 +142,15 @@ $.getJSON("data/proc/region.geojson",function(data1){
   }).addTo(regions);
 });
 
-function resetHighlight1(p) {
+//reset and highlight province
+function resetHighlightProv(p) {
   geojsonfile2.resetStyle(p.target);
     info.update();
 }
 
-function highlightFeature1(p) {
+//highlight province
+function highlightProvince(p) {
   var layer2 = p.target;
-
   layer2.setStyle({
     weight: 2,
     stroke: true,
@@ -181,9 +161,12 @@ function highlightFeature1(p) {
     fillOpacity: 0.2
   });
   info.update(layer2.feature.properties);
+  $('.categories-scroll').html("");
+  $('.population-taginfo span p').html(layer2.feature.properties['population'] ? layer2.feature.properties['population'] : 'N/A');
+  fillCommMarkTyp(layer2,'prov');
 }
 
-//todo: click on region shows province within
+//show provinces in region
 function toggleProvinces(p) {
   p.originalEvent.stopPropagation();
   var region = p.target;
@@ -283,7 +266,7 @@ function toggleMarkers(p) {
   document.getElementById('provInfo').innerHTML = '';
   document.getElementById('provInfo').appendChild(frag);
   $('.population-taginfo span p').html(prov.feature.properties['population'] ? prov.feature.properties['population'] : 'N/A');
-  fillCommMarkTyp(prov);
+  fillCommMarkTyp(prov,'comm');
 }
 
 function  fillComInfo(prov) {
@@ -304,12 +287,13 @@ function  fillComInfo(prov) {
   return frag;
 }
 
-function fillCommMarkTyp(comm) {
+function fillCommMarkTyp(comm,type) {
   //create object with number of each feature in comune
   var cInfo = {};
   // var checkboxes = document.getElementsByClassName('markerCat');
   for (var aC in markers) {
-    if (comm.feature.properties.code === markers[aC].feature.properties.COMMUNEID) {
+    if ((type==='comm' && comm.feature.properties.code === markers[aC].feature.properties.COMMUNEID)
+    || (comm.feature.properties.code_provi === markers[aC].feature.properties.code_provi)) {
       //found a marker in commune, create key in object for it or add to count
       var dType = markers[aC].feature.properties.CATEGORIE.trim();
       //also store secteur, makes it much easier when creating html. can sdo same for first level
@@ -355,7 +339,6 @@ function fillCommMarkTyp(comm) {
       frag.appendChild(div2);
     }
     $('.categories-scroll').html(frag);
-    console.log(cInfo);
   }
 }
 
@@ -376,8 +359,8 @@ $.getJSON("data/proc/provinceReg.geojson",function(data2){
      style: styleprovinces,
         onEachFeature: function (feature, layer2) {
         layer2.on({
-          mouseover: highlightFeature1,
-          mouseout: resetHighlight1,
+          mouseover: highlightProvince,
+          mouseout: resetHighlightProv,
           click: toggleCommunes
         });
        }
@@ -395,16 +378,14 @@ function getColor(d) {
                     '#FFEDA0';
 }
 
-function resetHighlight2(c) {
+function resetHighlightComm(c) {
   geojsonfile3.resetStyle(c.target);
     info.update();
 }
 
-// function zoomToFeature(e) {
-//  map.fitBounds(e.target.getBounds());
-// }
-
-function highlightFeature2(c) {
+//highlight commune
+function highlightCommune(c) {
+  c.originalEvent.stopPropagation();
   var layer3 = c.target;
   layer3.setStyle({
     weight: 1,
@@ -417,7 +398,7 @@ function highlightFeature2(c) {
   });
   info.update(layer3.feature.properties);
   $('.population-taginfo span p').html(layer3.feature.properties['population'] ? layer3.feature.properties['population'] : 'N/A');
-  fillCommMarkTyp(layer3);
+  fillCommMarkTyp(layer3,'comm');
 }
 
 function styleprovinces(feature) {
@@ -462,8 +443,8 @@ $.getJSON("data/proc/communesReg.geojson",function(data3){
    style: style,
       onEachFeature: function (feature, layer3) {
        layer3.on({
-          mouseover: highlightFeature2,
-          mouseout: resetHighlight2,
+          mouseover: highlightCommune,
+          mouseout: resetHighlightComm,
           click: toggleMarkers
         });
      }
@@ -501,7 +482,6 @@ var tpjng = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJNG1.png'});
   $.getJSON("data/proc/markersReg.geojson",function(data5){
       geojsonmrk = L.geoJson(data5,{
         onEachFeature: function (feature, layer) {
-          console.log(layer);
           if (!layer) return;
           layer.bindPopup('<div class="custom-popup">'+
           '<div class="tabs">'+
@@ -620,26 +600,6 @@ var tpjng = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJNG1.png'});
     hideSingleBase: false,
     collapsed: false
   }).addTo(map);
-
-//  var types = [CA, CE, CFP, CSJ, CSPI, CT, FF, GE, MJ, PA, POO, POO, SC, TGJG, TGJNG, TO, TPGJ, TPJNG];
-
-//     var layerControl = L.control.layers().addTo(map);
-
-//     types.forEach(function(type) {
-//     var mrklist = L.geoJson(geojsonmrk, {
-//         filter: function(feature, layer) {
-//             return feature.properties.CATEGORIE == type;
-//         }, 
-//         onEachFeature: function(feature, layer) {
-//             var link_url = "<a href='" + feature.properties.Link + "' target='_blank'>" + feature.properties.Name + "</a>"
-//             layer.bindPopup(link_url);
-//             // I don't see any L.icons in your example, but following what you have:
-//             layer.setIcon(type);
-//         }
-//     }
-//     // all done with the layer, add it to the control
-//     layerControl.addOverlay(layer, type);
-
  
 //-- popup tabs
   $(document).on("click",".singleTab",function(){
@@ -654,10 +614,10 @@ var tpjng = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJNG1.png'});
 
 //-- Information box expand/collapse
 $(document).ready(function() {
-	$('.information-collapse').on('click', function(e) {
-		$('.information-collapse .bar').toggleClass('active');
-	  $('.informationBox').toggleClass('active');
-		  e.preventDefault();
+  $('.information-collapse').on('click', function(e) {
+    $('.information-collapse .bar').toggleClass('active');
+    $('.informationBox').toggleClass('active');
+      e.preventDefault();
     });
     // prevenr zoom in map on mousewheel IE9, Chrome, Safari, Opera
     $('.informationBox').on("mousewheel", function(e) { e.stopPropagation() });
@@ -667,11 +627,11 @@ $(document).ready(function() {
 
   //-- Filter box expand/collapse
 $(document).ready(function() {
-	$('.filter-collapse').on('click', function(e) {
-		$('.filter-collapse').toggleClass('active');
-	  $('.filterBox').toggleClass('active');
-		  e.preventDefault();
-	  });
+  $('.filter-collapse').on('click', function(e) {
+    $('.filter-collapse').toggleClass('active');
+    $('.filterBox').toggleClass('active');
+      e.preventDefault();
+    });
     // prevenr zoom in map on mousewheel IE9, Chrome, Safari, Opera
     $('.filterBox').on("mousewheel", function(e) { e.stopPropagation() });
     // Firefox
