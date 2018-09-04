@@ -163,7 +163,7 @@ function highlightProvince(p) {
   info.update(layer2.feature.properties);
   $('.categories-scroll').html("");
   $('.population-taginfo span p').html(layer2.feature.properties['population'] ? layer2.feature.properties['population'] : 'N/A');
-  fillCommMarkTyp(layer2,'prov');
+  // fillCommMarkTyp(layer2,'prov');
 }
 
 //show provinces in region
