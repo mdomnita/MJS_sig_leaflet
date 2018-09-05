@@ -145,6 +145,7 @@ $.getJSON("data/proc/region.geojson",function(data1){
 //reset and highlight province
 function resetHighlightProv(p) {
   geojsonfile2.resetStyle(p.target);
+  $('.categories-scroll').html('')
     info.update();
 }
 
@@ -164,7 +165,12 @@ function highlightProvince(p) {
   $('.categories-scroll').html("");
   // $('.population-taginfo span p').html(layer2.feature.properties['population'] ? layer2.feature.properties['population'] : 'N/A');
   $('.population-taginfo span p').html('N/A');
-  // fillCommMarkTyp(layer2,'prov');
+  var found = false;
+  var commLayers = communes.getLayers()[0].getLayers();
+  for (var cm in commLayers) {
+    if (map.hasLayer(commLayers[cm])) found = true;
+  }
+  if (!found) fillCommMarkTyp(layer2,'prov');
 }
 
 //show provinces in region
@@ -218,7 +224,6 @@ function toggleProvinceLabels(hide) {
       }
   }
 }
-
 
 //click on province shows communes within
 function toggleCommunes(p) {
@@ -295,7 +300,7 @@ function fillCommMarkTyp(comm,type) {
   // var checkboxes = document.getElementsByClassName('markerCat');
   for (var aC in markers) {
     if ((type==='comm' && comm.feature.properties.code === markers[aC].feature.properties.COMMUNEID)
-    || (comm.feature.properties.code_provi === markers[aC].feature.properties.code_provi)) {
+    || (type==='prov' && comm.feature.properties.code_provi === markers[aC].feature.properties.code_provi)) {
       //found a marker in commune, create key in object for it or add to count
       var dType = markers[aC].feature.properties.CATEGORIE.trim();
       //also store secteur, makes it much easier when creating html. can sdo same for first level
@@ -486,6 +491,9 @@ var tpjng = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJNG1.png'});
       geojsonmrk = L.geoJson(data5,{
         onEachFeature: function (feature, layer) {
           if (!layer) return;
+          var fNomf = (typeof feature.properties.NOMFIRST === "string")? feature.properties.NOMFIRST : "" ;
+          var fNom =  (typeof feature.properties.NOM === "string")? feature.properties.NOM : ""
+          var fAddr =  (typeof feature.properties.ADRESSE === "string")? feature.properties.ADRESSE : ""
           layer.bindPopup('<div class="custom-popup">'+
           '<div class="tabs">'+
             '<li class="active singleTab" data-tab="tab-1">'+'Information'+'</li>'+
@@ -499,11 +507,11 @@ var tpjng = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJNG1.png'});
                 '<i class="fas fa-key"></i>'+
               '</div>'+
             '</div>'+
-            '<h3>'+(typeof feature.properties.NOMFIRST === "string")? feature.properties.NOMFIRST : ""+'</h3>'+
-            '<div class="location"><i class="fas fa-map-marker-alt"></i>'+
-            (typeof feature.properties.ADRESSE === "string")? feature.properties.ADRESSE : ""+'</div>'+
-            '<a href="#" class="btn btn-danger">'+
-            (typeof feature.properties.NOM === "string")? feature.properties.NOM : ""+'</a>'+
+            '<h3>'+ fNom +'</h3>'+
+            '<div class="location"><i class="fas fa-map-marker-alt"></i>'+ fAddr
+           +'</div>'+
+            '<a href="#" class="btn btn-danger">'+ fNom
+           +'</a>'+
           '</div>'+
         '<div id="tab-2" class="tab-content">'+
           '<li>'+'Test List'+'</li>'+
