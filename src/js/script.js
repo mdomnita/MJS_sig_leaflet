@@ -75,7 +75,8 @@ var printer = L.easyPrint({
 
 function resetHighlight(r) {
   geojsonfile1.resetStyle(r.target);
-    info.update();
+  $('.categories-scroll').html('');
+  info.update();
 }
 
 //remember previous zoom to check if user zoomed in or out
@@ -116,6 +117,7 @@ function highlightRegion(r) {
   });
   info.update(layer1.feature.properties);
   $('.categories-scroll').html("");
+  fillCommMarkTyp(layer1,'reg');
 }
 
   function styleregions(feature) {
@@ -145,7 +147,7 @@ $.getJSON("data/proc/region.geojson",function(data1){
 //reset and highlight province
 function resetHighlightProv(p) {
   geojsonfile2.resetStyle(p.target);
-  $('.categories-scroll').html('')
+    $('.categories-scroll').html('');
     info.update();
 }
 
@@ -300,7 +302,8 @@ function fillCommMarkTyp(comm,type) {
   // var checkboxes = document.getElementsByClassName('markerCat');
   for (var aC in markers) {
     if ((type==='comm' && comm.feature.properties.code === markers[aC].feature.properties.COMMUNEID)
-    || (type==='prov' && comm.feature.properties.code_provi === markers[aC].feature.properties.code_provi)) {
+    || (type==='prov' && comm.feature.properties.code_provi === markers[aC].feature.properties.code_provi)
+    || (type==='reg' && comm.feature.properties.region_id === markers[aC].feature.properties.id_adm)) {
       //found a marker in commune, create key in object for it or add to count
       var dType = markers[aC].feature.properties.CATEGORIE.trim();
       //also store secteur, makes it much easier when creating html. can sdo same for first level
