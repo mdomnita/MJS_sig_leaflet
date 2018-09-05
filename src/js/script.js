@@ -162,7 +162,8 @@ function highlightProvince(p) {
   });
   info.update(layer2.feature.properties);
   $('.categories-scroll').html("");
-  $('.population-taginfo span p').html(layer2.feature.properties['population'] ? layer2.feature.properties['population'] : 'N/A');
+  // $('.population-taginfo span p').html(layer2.feature.properties['population'] ? layer2.feature.properties['population'] : 'N/A');
+  $('.population-taginfo span p').html('N/A');
   // fillCommMarkTyp(layer2,'prov');
 }
 
@@ -265,7 +266,8 @@ function toggleMarkers(p) {
   var frag = fillComInfo(prov);
   document.getElementById('provInfo').innerHTML = '';
   document.getElementById('provInfo').appendChild(frag);
-  $('.population-taginfo span p').html(prov.feature.properties['population'] ? prov.feature.properties['population'] : 'N/A');
+  // $('.population-taginfo span p').html(prov.feature.properties['population'] ? prov.feature.properties['population'] : 'N/A');
+  $('.population-taginfo span p').html('N/A');
   fillCommMarkTyp(prov,'comm');
 }
 
@@ -397,7 +399,8 @@ function highlightCommune(c) {
     fillOpacity: 0.2
   });
   info.update(layer3.feature.properties);
-  $('.population-taginfo span p').html(layer3.feature.properties['population'] ? layer3.feature.properties['population'] : 'N/A');
+  // $('.population-taginfo span p').html(layer3.feature.properties['population'] ? layer3.feature.properties['population'] : 'N/A');
+  $('.population-taginfo span p').html('N/A');
   fillCommMarkTyp(layer3,'comm');
 }
 
@@ -496,9 +499,11 @@ var tpjng = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJNG1.png'});
                 '<i class="fas fa-key"></i>'+
               '</div>'+
             '</div>'+
-            '<h3>'+feature.properties.NOMFIRST+'</h3>'+
-            '<div class="location"><i class="fas fa-map-marker-alt"></i>'+feature.properties.ADRESSE+'</div>'+
-            '<a href="#" class="btn btn-danger">'+feature.properties.NOM+'</a>'+
+            '<h3>'+(typeof feature.properties.NOMFIRST === "string")? feature.properties.NOMFIRST : ""+'</h3>'+
+            '<div class="location"><i class="fas fa-map-marker-alt"></i>'+
+            (typeof feature.properties.ADRESSE === "string")? feature.properties.ADRESSE : ""+'</div>'+
+            '<a href="#" class="btn btn-danger">'+
+            (typeof feature.properties.NOM === "string")? feature.properties.NOM : ""+'</a>'+
           '</div>'+
         '<div id="tab-2" class="tab-content">'+
           '<li>'+'Test List'+'</li>'+
