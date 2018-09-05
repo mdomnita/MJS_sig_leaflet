@@ -16,75 +16,280 @@ var map = L.map('map', {
   layers: [regions]
 });
 
-var basemap1 = L.tileLayer('https://api.mapbox.com/styles/v1/sidgis/cjld7y4h972ve2rs0mh9v5iv8/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoic2lkZ2lzIiwiYSI6ImNqa3phcGZ0djBwcXEzcG53eGVzNXRpdmQifQ.JO3UVPg-WqaXki7mKcQhAw', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
 
-  
-var info = L.control();
+// var basemap1 = L.tileLayer('https://api.mapbox.com/styles/v1/sidgis/cjld7y4h972ve2rs0mh9v5iv8/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoic2lkZ2lzIiwiYSI6ImNqa3phcGZ0djBwcXEzcG53eGVzNXRpdmQifQ.JO3UVPg-WqaXki7mKcQhAw', {
+//   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+// }).addTo(map);
 
-info.onAdd = function (map) {
-  this._div = L.DomUtil.create('div');
-  this.update();
-  return this._div;
-};
+  // vars which will carry data of GeoJson files
+  var geojsonfile1 = null;
+  var geojsonfile2 = null;
+  var geojsonfile3 = null;
+  var geojsonmrk = null;
+  var info = L.control();
+  // Get GeoJSON and put on it on the map when it loads
+  var markericon = L.icon({
+    iconUrl: 'icons/Map-marker-02.png',
+    iconSize: [36,36],
+    iconAnchor: [18,18]
+  });
 
-info.update = function (props) {
-  document.getElementById('provInfo').innerHTML = '';
-  if (!props) return;
-  var frag = document.createDocumentFragment();
-  //add all info for a province. Other attributes can be added here.
-  var attrib = ['commune','province','region','Name'];
-  for (att in attrib)
-  {
-    if (props[attrib[att]]) {
-      var p = document.createElement('p');
-      var span = document.createElement('span');
-      span.className = 'titl';
-      span.appendChild(document.createTextNode(attrib[att].charAt(0).toUpperCase() + attrib[att].slice(1)+': '));
-      p.appendChild(span);
-      p.appendChild(document.createTextNode(props[attrib[att]] ? props[attrib[att]] : 'N/A'));
-      frag.appendChild(p);
+$.getJSON("data/proc/morocco.geojson",function(data1){
+    var geom = data1.features[0].geometry;
+    var basemap1 = L.TileLayer.boundaryCanvas('https://api.mapbox.com/styles/v1/sidgis/cjld7y4h972ve2rs0mh9v5iv8/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoic2lkZ2lzIiwiYSI6ImNqa3phcGZ0djBwcXEzcG53eGVzNXRpdmQifQ.JO3UVPg-WqaXki7mKcQhAw', {
+        boundary: geom, 
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+  //print map control
+  var printer = L.easyPrint({
+    tileLayer: basemap1,
+    sizeModes: ['A4Landscape', 'A4Portrait'],
+    filename: 'myMap',
+    hideControlContainer: true
+  }).addTo(map);
+
+
+  info.onAdd = function (map) {
+    this._div = L.DomUtil.create('div');
+    this.update();
+    return this._div;
+  };
+
+  info.update = function (props) {
+    document.getElementById('provInfo').innerHTML = '';
+    if (!props) return;
+    var frag = document.createDocumentFragment();
+    //add all info for a province. Other attributes can be added here.
+    var attrib = ['commune','province','region','Name'];
+    for (att in attrib)
+    {
+      if (props[attrib[att]]) {
+        var p = document.createElement('p');
+        var span = document.createElement('span');
+        span.className = 'titl';
+        span.appendChild(document.createTextNode(attrib[att].charAt(0).toUpperCase() + attrib[att].slice(1)+': '));
+        p.appendChild(span);
+        p.appendChild(document.createTextNode(props[attrib[att]] ? props[attrib[att]] : 'N/A'));
+        frag.appendChild(p);
+      }
     }
+    document.getElementById('provInfo').appendChild(frag);
+  };
+  info.addTo(map);
+
+  checkZoomEnd();
+
+  //remember previous zoom to check if user zoomed in or out
+  map.on('zoomstart', function(z) {
+    cZoom = z.target.getZoom();
+  });
+
+  $.getJSON("data/proc/region.geojson",function(data1){
+      geojsonfile1 = L.geoJson(data1,{
+        style: styleregions,  
+        onEachFeature: function (feature, layer) {
+          layer.on({
+            mouseover: highlightRegion,
+            mouseout: resetHighlight,
+            click: toggleProvinces
+          });
+        }
+    }).addTo(regions);
+  });
+
+  $.getJSON("data/proc/provinceReg.geojson",function(data2){
+      geojsonfile2 = L.geoJson(data2,{
+       style: styleprovinces,
+          onEachFeature: function (feature, layer2) {
+          layer2.on({
+            mouseover: highlightProvince,
+            mouseout: resetHighlightProv,
+            click: toggleCommunes
+          });
+         }
+    }).addTo(provinces);
+  });
+
+  $.getJSON("data/proc/communesReg.geojson",function(data3){
+    geojsonfile3 = L.geoJson(data3,{
+     style: style,
+        onEachFeature: function (feature, layer3) {
+         layer3.on({
+            mouseover: highlightCommune,
+            mouseout: resetHighlightComm,
+            click: toggleMarkers
+          });
+       }
+    }).addTo(communes);
+  });
+
+  var Icon = L.Icon.extend({
+  options:{
+      iconSize: [18,18],
+      iconAnchor: [5,5],
+      popupAnchor: [0,-6]
   }
-  document.getElementById('provInfo').appendChild(frag);
-};
-info.addTo(map);
+  });
 
-// vars which will carry data of GeoJson files
-var geojsonfile1 = null;
-var geojsonfile2 = null;
-var geojsonfile3 = null;
-var geojsonmrk = null;
-  
-// Get GeoJSON and put on it on the map when it loads
+  // Create specific icons
+  var ca = new Icon({iconUrl: 'MJS_icones/Jeunesse/PNG_1X/CA1.png'});
+  var ce = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/CE1.png'});
+  var cfp = new Icon({iconUrl: 'MJS_icones/Affaires_Feminines/PNG_1X/CFP1.png'});
+  var csj = new Icon({iconUrl: 'MJS_icones/Jeunesse/PNG_1X/CSJ1.png'});
+  var cspi = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/CSPI1.png'});
+  var ct = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/CT1.png'});
+  var ff = new Icon({iconUrl: 'MJS_icones/Affaires_Feminines/PNG_1X/FF1.png'});
+  var ge = new Icon({iconUrl: 'MJS_icones/Affaires_Feminines/PNG_1X/GE1.png'});
+  var mj = new Icon({iconUrl: 'MJS_icones/Jeunesse/PNG_1X/MJ1.png'});
+  var pa = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/PA1.png'});
+  var po = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/POO1.png'});
+  var poo = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/POO1.png'});
+  var sc = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/SC1.png'});
+  var tgjg = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TGJG1.png'});
+  var tgjng = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TGJNG1.png'});
+  var to = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TO1.png'});
+  var tpjg = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJG1.png'});
+  var tpjng = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJNG1.png'});
 
-var markericon = L.icon({
-  iconUrl: 'icons/Map-marker-02.png',
-  iconSize: [36,36],
-  iconAnchor: [18,18]
+  $.getJSON("data/proc/markersReg.geojson",function(data5){
+    geojsonmrk = L.geoJson(data5,{
+      onEachFeature: function (feature, layer) {
+        if (!layer) return;
+        var fNomf = (typeof feature.properties.NOMFIRST === "string")? feature.properties.NOMFIRST : "" ;
+        var fNom =  (typeof feature.properties.NOM === "string")? feature.properties.NOM : ""
+        var fAddr =  (typeof feature.properties.ADRESSE === "string")? feature.properties.ADRESSE : ""
+        layer.bindPopup('<div class="custom-popup">'+
+        '<div class="tabs">'+
+          '<li class="active singleTab" data-tab="tab-1">'+'Information'+'</li>'+
+          '<li data-tab="tab-2" class="singleTab">'+'Offer'+'</li>'+
+        '</div>'+
+        '<div id="tab-1" class="tab-content active">'+
+          '<div class="img">'+
+            '<img src="http://via.placeholder.com/275x155" alt="" />'+
+            '<div class="tags">'+
+              '<i class="fas fa-home"></i>'+
+              '<i class="fas fa-key"></i>'+
+            '</div>'+
+          '</div>'+
+          '<h3>'+ fNom +'</h3>'+
+          '<div class="location"><i class="fas fa-map-marker-alt"></i>'+ fAddr
+         +'</div>'+
+          '<a href="#" class="btn btn-danger">'+ fNom
+         +'</a>'+
+        '</div>'+
+      '<div id="tab-2" class="tab-content">'+
+      '</div>'+
+      '</div>');
+        }, pointToLayer: function (feature, latlng) {
+          if (!feature) return;
+          var mType = feature.properties.CATEGORIE.trim();
+          if (mType === "CA"){
+            feature.properties.icon = ca;
+            var marker = L.marker(latlng,feature.properties);
+          } else if (mType === "CE"){
+            feature.properties.icon = ce;
+            var marker = L.marker(latlng,feature.properties);
+          } else if (mType === "CFP"){
+            feature.properties.icon = cfp;
+            var marker = L.marker(latlng,feature.properties);
+          } else if (mType === "CSJ"){
+            feature.properties.icon = csj;
+            var marker = L.marker(latlng,feature.properties);
+          } else if (mType === "CSPI"){
+            feature.properties.icon = cspi;
+            var marker = L.marker(latlng,feature.properties);
+          } else if (mType === "CT"){
+            feature.properties.icon = ct;
+            var marker = L.marker(latlng,feature.properties);
+          } else if (mType === "FF"){
+            feature.properties.icon = ff;
+            var marker = L.marker(latlng,feature.properties);
+          } else if (mType === "GE"){
+            feature.properties.icon = ge;
+            var marker = L.marker(latlng,feature.properties);
+          } else if (mType === "MJ"){
+            feature.properties.icon = mj;
+            var marker = L.marker(latlng,feature.properties);
+          } else if (mType === "PA"){
+            feature.properties.icon = pa;
+            var marker = L.marker(latlng,feature.properties);
+          } else if (mType === "PO"){
+            feature.properties.icon = poo;
+            var marker = L.marker(latlng,feature.properties);
+          } else if (mType === "POO"){
+            feature.properties.icon = poo;
+            var marker = L.marker(latlng,feature.properties);
+          } else if (mType === "SC"){
+            feature.properties.icon = sc;
+            var marker = L.marker(latlng,feature.properties);
+          } else if (mType === "TGJG"){
+            feature.properties.icon = tgjg;
+            var marker = L.marker(latlng,feature.properties);
+          } else if (mType === "TGJNG"){
+            feature.properties.icon = tgjng;
+            var marker = L.marker(latlng,feature.properties);
+          } else if (mType === "TO"){
+            feature.properties.icon = to;
+            var marker = L.marker(latlng,feature.properties);
+          } else if (mType === "TPJG"){
+            feature.properties.icon = tpjg;
+            var marker = L.marker(latlng,feature.properties);
+          } else if (mType === "TPJNG"){
+            feature.properties.icon = tpjng;
+            var marker = L.marker(latlng,feature.properties);
+          } 
+          //fallback option for wrong/incorrect data
+          else {
+            feature.properties.icon = tpjng;
+            var marker = L.marker(latlng,feature.properties);
+          }
+          //markers will always have all markers from map. clusters only have the ones shown after filtering
+          if (marker) {
+            markers.push(marker);
+          }
+          return marker;
+        }
+      });
+        //add to markers only, add to cluster only on commune click (request)
+        clusters.addLayer(geojsonmrk);
+    });
+    map.addLayer(clusters);
+
+    //layers 
+    var baseLayers = {
+       "Markers":basemap1
+    };
+  // vars for IDs of layers control 
+    var overlays = {
+      "Markers": clusters,
+      "Communes": communes,
+      "Provinces": provinces,
+      "Regions": regions
+    };
+
+    L.control.layers(baseLayers, overlays, {
+      hideSingleBase: false,
+      collapsed: false
+    }).addTo(map);
+   
+  //-- popup tabs
+    $(document).on("click",".singleTab",function(){
+      var tab_id = $(this).attr('data-tab');
+
+      $('.singleTab').removeClass('active');
+      $('.tab-content').removeClass('active');
+
+      $(this).addClass('active');
+      $("#"+tab_id).addClass('active');
+    });
 });
-
-//print map control
-var printer = L.easyPrint({
-  tileLayer: basemap1,
-  sizeModes: ['A4Landscape', 'A4Portrait'],
-  filename: 'myMap',
-  hideControlContainer: true
-}).addTo(map);
 
 function resetHighlight(r) {
   geojsonfile1.resetStyle(r.target);
   $('.categories-scroll').html('');
   info.update();
 }
-
-//remember previous zoom to check if user zoomed in or out
-map.on('zoomstart', function(z) {
-  cZoom = z.target.getZoom();
-});
-
-checkZoomEnd();
 
 function checkZoomEnd() {
   //if user zooms out hide lower level layers
@@ -120,7 +325,7 @@ function highlightRegion(r) {
   fillCommMarkTyp(layer1,'reg');
 }
 
-  function styleregions(feature) {
+function styleregions(feature) {
   return {
       fillColor: '#ffffff',
       weight: 3,
@@ -130,19 +335,6 @@ function highlightRegion(r) {
       fillOpacity: 0
   };
 }
-
-$.getJSON("data/proc/region.geojson",function(data1){
-    geojsonfile1 = L.geoJson(data1,{
-      style: styleregions,  
-      onEachFeature: function (feature, layer) {
-        layer.on({
-          mouseover: highlightRegion,
-          mouseout: resetHighlight,
-          click: toggleProvinces
-        });
-      }
-  }).addTo(regions);
-});
 
 //reset and highlight province
 function resetHighlightProv(p) {
@@ -364,19 +556,6 @@ function styleprovinces(feature) {
   };
 }
 
-$.getJSON("data/proc/provinceReg.geojson",function(data2){
-    geojsonfile2 = L.geoJson(data2,{
-     style: styleprovinces,
-        onEachFeature: function (feature, layer2) {
-        layer2.on({
-          mouseover: highlightProvince,
-          mouseout: resetHighlightProv,
-          click: toggleCommunes
-        });
-       }
-  }).addTo(provinces);
-});
-
 function getColor(d) {
   return d > 1000 ? '#800026' :
          d > 500  ? '#BD0026' :
@@ -448,186 +627,6 @@ function toggleMarker(marker,hide) {
     clusters.addLayer(marker);
   }
 }
-
-$.getJSON("data/proc/communesReg.geojson",function(data3){
-  geojsonfile3 = L.geoJson(data3,{
-   style: style,
-      onEachFeature: function (feature, layer3) {
-       layer3.on({
-          mouseover: highlightCommune,
-          mouseout: resetHighlightComm,
-          click: toggleMarkers
-        });
-     }
-  }).addTo(communes);
-});
-
-var Icon = L.Icon.extend({
-options:{
-    iconSize: [18,18],
-    iconAnchor: [5,5],
-    popupAnchor: [0,-6]
-}
-});
-
-// Create specific icons
-var ca = new Icon({iconUrl: 'MJS_icones/Jeunesse/PNG_1X/CA1.png'});
-var ce = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/CE1.png'});
-var cfp = new Icon({iconUrl: 'MJS_icones/Affaires_Feminines/PNG_1X/CFP1.png'});
-var csj = new Icon({iconUrl: 'MJS_icones/Jeunesse/PNG_1X/CSJ1.png'});
-var cspi = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/CSPI1.png'});
-var ct = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/CT1.png'});
-var ff = new Icon({iconUrl: 'MJS_icones/Affaires_Feminines/PNG_1X/FF1.png'});
-var ge = new Icon({iconUrl: 'MJS_icones/Affaires_Feminines/PNG_1X/GE1.png'});
-var mj = new Icon({iconUrl: 'MJS_icones/Jeunesse/PNG_1X/MJ1.png'});
-var pa = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/PA1.png'});
-var po = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/POO1.png'});
-var poo = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/POO1.png'});
-var sc = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/SC1.png'});
-var tgjg = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TGJG1.png'});
-var tgjng = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TGJNG1.png'});
-var to = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TO1.png'});
-var tpjg = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJG1.png'});
-var tpjng = new Icon({iconUrl: 'MJS_icones/Sport/PNG_1X/TPJNG1.png'});
-
-  $.getJSON("data/proc/markersReg.geojson",function(data5){
-      geojsonmrk = L.geoJson(data5,{
-        onEachFeature: function (feature, layer) {
-          if (!layer) return;
-          var fNomf = (typeof feature.properties.NOMFIRST === "string")? feature.properties.NOMFIRST : "" ;
-          var fNom =  (typeof feature.properties.NOM === "string")? feature.properties.NOM : ""
-          var fAddr =  (typeof feature.properties.ADRESSE === "string")? feature.properties.ADRESSE : ""
-          layer.bindPopup('<div class="custom-popup">'+
-          '<div class="tabs">'+
-            '<li class="active singleTab" data-tab="tab-1">'+'Information'+'</li>'+
-            '<li data-tab="tab-2" class="singleTab">'+'Offer'+'</li>'+
-          '</div>'+
-          '<div id="tab-1" class="tab-content active">'+
-            '<div class="img">'+
-              '<img src="http://via.placeholder.com/275x155" alt="" />'+
-              '<div class="tags">'+
-                '<i class="fas fa-home"></i>'+
-                '<i class="fas fa-key"></i>'+
-              '</div>'+
-            '</div>'+
-            '<h3>'+ fNom +'</h3>'+
-            '<div class="location"><i class="fas fa-map-marker-alt"></i>'+ fAddr
-           +'</div>'+
-            '<a href="#" class="btn btn-danger">'+ fNom
-           +'</a>'+
-          '</div>'+
-        '<div id="tab-2" class="tab-content">'+
-          '<li>'+'Test List'+'</li>'+
-          '<li>'+'Test List'+'</li>'+
-          '<li>'+'Test List'+'</li>'+
-        '</div>'+
-
-
-        '</div>');
-          }, pointToLayer: function (feature, latlng) {
-            if (!feature) return;
-            var mType = feature.properties.CATEGORIE.trim();
-            if (mType === "CA"){
-              feature.properties.icon = ca;
-              var marker = L.marker(latlng,feature.properties);
-            } else if (mType === "CE"){
-              feature.properties.icon = ce;
-              var marker = L.marker(latlng,feature.properties);
-            } else if (mType === "CFP"){
-              feature.properties.icon = cfp;
-              var marker = L.marker(latlng,feature.properties);
-            } else if (mType === "CSJ"){
-              feature.properties.icon = csj;
-              var marker = L.marker(latlng,feature.properties);
-            } else if (mType === "CSPI"){
-              feature.properties.icon = cspi;
-              var marker = L.marker(latlng,feature.properties);
-            } else if (mType === "CT"){
-              feature.properties.icon = ct;
-              var marker = L.marker(latlng,feature.properties);
-            } else if (mType === "FF"){
-              feature.properties.icon = ff;
-              var marker = L.marker(latlng,feature.properties);
-            } else if (mType === "GE"){
-              feature.properties.icon = ge;
-              var marker = L.marker(latlng,feature.properties);
-            } else if (mType === "MJ"){
-              feature.properties.icon = mj;
-              var marker = L.marker(latlng,feature.properties);
-            } else if (mType === "PA"){
-              feature.properties.icon = pa;
-              var marker = L.marker(latlng,feature.properties);
-            } else if (mType === "PO"){
-              feature.properties.icon = poo;
-              var marker = L.marker(latlng,feature.properties);
-            } else if (mType === "POO"){
-              feature.properties.icon = poo;
-              var marker = L.marker(latlng,feature.properties);
-            } else if (mType === "SC"){
-              feature.properties.icon = sc;
-              var marker = L.marker(latlng,feature.properties);
-            } else if (mType === "TGJG"){
-              feature.properties.icon = tgjg;
-              var marker = L.marker(latlng,feature.properties);
-            } else if (mType === "TGJNG"){
-              feature.properties.icon = tgjng;
-              var marker = L.marker(latlng,feature.properties);
-            } else if (mType === "TO"){
-              feature.properties.icon = to;
-              var marker = L.marker(latlng,feature.properties);
-            } else if (mType === "TPJG"){
-              feature.properties.icon = tpjg;
-              var marker = L.marker(latlng,feature.properties);
-            } else if (mType === "TPJNG"){
-              feature.properties.icon = tpjng;
-              var marker = L.marker(latlng,feature.properties);
-            } 
-            //fallback option for wrong/incorrect data
-            else {
-              feature.properties.icon = tpjng;
-              var marker = L.marker(latlng,feature.properties);
-            }
-          //markers will always have all markers from map. clusters only have the ones shown after filtering
-          if (marker) {
-            markers.push(marker);
-          }
-          return marker;
-          }
-    });
-      //add to markers only, add to cluster only on commune click (request)
-      clusters.addLayer(geojsonmrk);
-  });
-  //clusters.addLayer(geojsonmrk);
-  map.addLayer(clusters);
-
-  //layers 
-  var baseLayers = {
-     "Markers":basemap1
-  };
-// vars for IDs of layers control 
-  var overlays = {
-    "Markers": clusters,
-    "Communes": communes,
-    "Provinces": provinces,
-    "Regions": regions
-  };
-
-  L.control.layers(baseLayers, overlays, {
-    hideSingleBase: false,
-    collapsed: false
-  }).addTo(map);
- 
-//-- popup tabs
-  $(document).on("click",".singleTab",function(){
-    var tab_id = $(this).attr('data-tab');
-
-    $('.singleTab').removeClass('active');
-    $('.tab-content').removeClass('active');
-
-    $(this).addClass('active');
-    $("#"+tab_id).addClass('active');
-  })
-
 //-- Information box expand/collapse
 $(document).ready(function() {
   $('.information-collapse').on('click', function(e) {
