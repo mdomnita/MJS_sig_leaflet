@@ -9,6 +9,9 @@ var provinces = L.layerGroup();
 var communes = L.layerGroup();
 //clusters hold the categories shown on the map
 var clusters = L.markerClusterGroup({showCoverageOnHover:false});
+var regClusters = {};
+var comClusters =  {};
+var provClusters = {};
 
 var map = L.map('map', {
   center: [33.80, -6.21],                  //[29.38217507514529, -8.7451171875],
@@ -82,7 +85,7 @@ $.getJSON("data/proc/morocco.geojson",function(data1){
 
   //remember previous zoom to check if user zoomed in or out
   map.on('zoomstart', function(z) {
-    cZoom = z.target.getZoom();
+    cZoom = map.getZoom();
   });
 
   $.getJSON("data/proc/region.geojson",function(data1){
@@ -178,10 +181,11 @@ $.getJSON("data/proc/morocco.geojson",function(data1){
           '<a href="#" class="btn btn-danger">'+ fNom
          +'</a>'+
         '</div>'+
-      '<div id="tab-2" class="tab-content">'+
-      '</div>'+
-      '</div>');
-        }, pointToLayer: function (feature, latlng) {
+        '<div id="tab-2" class="tab-content">'+
+        '</div>'+
+        '</div>');
+      }, 
+      pointToLayer: function (feature, latlng) {
           if (!feature) return;
           var mType = feature.properties.CATEGORIE.trim();
           if (mType === "CA"){
@@ -249,12 +253,35 @@ $.getJSON("data/proc/morocco.geojson",function(data1){
             markers.push(marker);
           }
           return marker;
-        }
-      });
-        //add to markers only, add to cluster only on commune click (request)
-        clusters.addLayer(geojsonmrk);
+      }
     });
-    map.addLayer(clusters);
+        //add to markers only, add to cluster only on commune click (request)
+      clusters.addLayer(geojsonmrk);
+
+      var markerz = geojsonmrk.getLayers();
+      for (mrk in markers) {
+        var mrkpropz = markers[mrk].feature.properties;
+        //add makrer to clusters split in regions/communes/provinces
+        if (!regClusters.hasOwnProperty(mrkpropz.id_adm)) {
+          regClusters[mrkpropz.id_adm] = L.markerClusterGroup({showCoverageOnHover:false});
+        }
+        regClusters[mrkpropz.id_adm].addLayer(markers[mrk]);
+        //clusters for provinces
+        if (!provClusters.hasOwnProperty(mrkpropz.code_provi)) {
+          provClusters[mrkpropz.code_provi] = L.markerClusterGroup({showCoverageOnHover:false});
+        }
+        provClusters[mrkpropz.code_provi].addLayer(markers[mrk]);
+        //clusters for communes
+        // if (!comClusters.hasOwnProperty(mrkpropz.COMMUNEID)) {
+        //   comClusters[mrkpropz.COMMUNEID] = L.markerClusterGroup({showCoverageOnHover:false});
+        // }
+        // comClusters[mrkpropz.COMMUNEID].addLayer(markers[mrk]);
+      }
+      for (let key in regClusters) {
+        map.addLayer(regClusters[key]);
+      }
+  });
+    // map.addLayer(clusters);
 
     //layers 
     var baseLayers = {
@@ -294,14 +321,36 @@ function resetHighlight(r) {
 function checkZoomEnd() {
   //if user zooms out hide lower level layers
   map.on('zoomend', function(z) {
-    var aZoom = z.target.getZoom();
+    var aZoom = map.getZoom();
     //hide communes on zoom 13
-    if (aZoom < cZoom && z.target.getZoom() < 11 && map.hasLayer(communes)) {
+    if (cZoom && aZoom < cZoom && map.getZoom() < 11 && map.hasLayer(communes)) {
+      for (let key in regClusters) {
+        if (map.hasLayer(regClusters[key])) map.removeLayer(regClusters[key]);
+      }
+      // for (let key in comClusters) {
+      //   if (map.hasLayer(comClusters[key])) map.removeLayer(comClusters[key]);
+      // }
+      for (let key in provClusters) {
+        if (!(map.hasLayer(provClusters[key]))) map.addLayer(provClusters[key]);
+      }
       map.removeLayer(communes);
       map.addLayer(provinces);
     }
     //hide provinces on zoom 11
-    if (aZoom < cZoom && z.target.getZoom() < 8 && map.hasLayer(provinces)) {
+    if (cZoom && aZoom < cZoom && map.getZoom() < 8 && map.hasLayer(provinces)) {
+      for (let key in provClusters) {
+        if (map.hasLayer(provClusters[key])) {
+          map.removeLayer(provClusters[key]);
+        }
+      }
+      // for (let key in comClusters) {
+      //   if (map.hasLayer(comClusters[key])) map.removeLayer(comClusters[key]);
+      // }
+      for (let key in regClusters) {
+        if (!(map.hasLayer(regClusters[key]))) {
+          map.addLayer(regClusters[key]);
+        }
+      }
       map.removeLayer(provinces);
       map.addLayer(regions);
     }
@@ -357,7 +406,6 @@ function highlightProvince(p) {
   });
   info.update(layer2.feature.properties);
   $('.categories-scroll').html("");
-  // $('.population-taginfo span p').html(layer2.feature.properties['population'] ? layer2.feature.properties['population'] : 'N/A');
   $('.population-taginfo span p').html('N/A');
   var found = false;
   var commLayers = communes.getLayers()[0].getLayers();
@@ -389,8 +437,20 @@ function toggleProvinces(p) {
       provLayers[cm].bindTooltip(provLayers[cm].feature.properties.province,{direction:'center',permanent:true}).openTooltip();
     }
   }
+  for (let key in regClusters) {
+    if (map.hasLayer(regClusters[key])) {
+      map.removeLayer(regClusters[key]);
+    }
+  }
+  // for (let key in comClusters) {
+  //   if (map.hasLayer(comClusters[key])) map.removeLayer(comClusters[key]);
+  // }
+  for (let key in provClusters) {
+    if (!(map.hasLayer(provClusters[key]))) map.addLayer(provClusters[key]);
+  }
   map.removeLayer(regions);
 }
+
 //add or remove lbels for provinces
 function toggleProvinceLabels(hide) {
   if (hide) {
@@ -437,11 +497,20 @@ function toggleCommunes(p) {
       map.addLayer(commLayers[cm]);
     }
   }
+  for (let key in regClusters) {
+    if (map.hasLayer(regClusters[key])) map.removeLayer(regClusters[key]);
+  }
+  // for (let key in provClusters) {
+  //   if (map.hasLayer(provClusters[key])) map.removeLayer(provClusters[key]);
+  // }
+  for (let key in provClusters) {
+    if (!(map.hasLayer(provClusters[key]))) map.addLayer(provClusters[key]);
+  }
   //if user zooms out hide lower level layers
   map.on('zoomend', function(z) {
-    var aZoom = z.target.getZoom();
+    var aZoom = map.getZoom();
     //add tooltips to communes on zoom 13
-    if (z.target.getZoom() > 11 && map.hasLayer(communes)) {
+    if (map.getZoom() > 11 && map.hasLayer(communes)) {
       for (var cm in commLayers) {
         commLayers[cm].unbindTooltip();
         if (map.hasLayer(commLayers[cm])) {
@@ -458,6 +527,15 @@ function toggleCommunes(p) {
 function toggleMarkers(p) {
   p.originalEvent.stopPropagation();
   var prov = p.target;
+  for (let key in regClusters) {
+    if (map.hasLayer(regClusters[key])) map.removeLayer(regClusters[key]);
+  }
+  for (let key in provClusters) {
+    if (!(map.hasLayer(provClusters[key]))) map.addLayer(provClusters[key]);
+  }
+  // for (let key in comClusters) {
+  //   if (!map.hasLayer(comClusters[key])) map.addLayer(comClusters[key]);
+  // }
   map.removeLayer(provinces);
 
   var myBounds = prov.getBounds().pad(0.02);
@@ -471,7 +549,6 @@ function toggleMarkers(p) {
 }
 
 function  fillComInfo(prov) {
-  console.log(prov);
   var frag = document.createDocumentFragment();
   //add all info for a province. Other attributes can be added here.
   var attrib = ['commune'];
@@ -488,14 +565,14 @@ function  fillComInfo(prov) {
   return frag;
 }
 
+//create object with number of each feature in comune or region/prov
 function fillCommMarkTyp(comm,type) {
-  //create object with number of each feature in comune
   var cInfo = {};
   // var checkboxes = document.getElementsByClassName('markerCat');
   for (var aC in markers) {
-    if ((type==='comm' && comm.feature.properties.code === markers[aC].feature.properties.COMMUNEID)
-    || (type==='prov' && comm.feature.properties.code_provi === markers[aC].feature.properties.code_provi)
-    || (type==='reg' && comm.feature.properties.region_id === markers[aC].feature.properties.id_adm)) {
+    if ((type==='comm' && comm.feature.properties.code == markers[aC].feature.properties.COMMUNEID)
+    || (type==='prov' && comm.feature.properties.code_provi == markers[aC].feature.properties.code_provi)
+    || (type==='reg' && comm.feature.properties.region_id == markers[aC].feature.properties.id_adm)) {
       //found a marker in commune, create key in object for it or add to count
       var dType = markers[aC].feature.properties.CATEGORIE.trim();
       //also store secteur, makes it much easier when creating html. can sdo same for first level
