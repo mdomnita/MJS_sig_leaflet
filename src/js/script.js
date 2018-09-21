@@ -262,10 +262,10 @@ $.getJSON("data/proc/morocco.geojson",function(data1){
       for (mrk in markers) {
         var mrkpropz = markers[mrk].feature.properties;
         //add makrer to clusters split in regions/communes/provinces
-        if (!regClusters.hasOwnProperty(mrkpropz.id_adm)) {
-          regClusters[mrkpropz.id_adm] = L.markerClusterGroup({showCoverageOnHover:false});
-        }
-        regClusters[mrkpropz.id_adm].addLayer(markers[mrk]);
+        // if (!regClusters.hasOwnProperty(mrkpropz.id_adm)) {
+        //   regClusters[mrkpropz.id_adm] = L.markerClusterGroup({showCoverageOnHover:false});
+        // }
+        // regClusters[mrkpropz.id_adm].addLayer(markers[mrk]);
         //clusters for provinces
         if (!provClusters.hasOwnProperty(mrkpropz.code_provi)) {
           provClusters[mrkpropz.code_provi] = L.markerClusterGroup({showCoverageOnHover:false});
@@ -277,8 +277,8 @@ $.getJSON("data/proc/morocco.geojson",function(data1){
         // }
         // comClusters[mrkpropz.COMMUNEID].addLayer(markers[mrk]);
       }
-      for (let key in regClusters) {
-        map.addLayer(regClusters[key]);
+      for (let key in provClusters) {
+        map.addLayer(provClusters[key]);
       }
   });
     // map.addLayer(clusters);
@@ -324,33 +324,33 @@ function checkZoomEnd() {
     var aZoom = map.getZoom();
     //hide communes on zoom 13
     if (cZoom && aZoom < cZoom && map.getZoom() < 11 && map.hasLayer(communes)) {
-      for (let key in regClusters) {
-        if (map.hasLayer(regClusters[key])) map.removeLayer(regClusters[key]);
-      }
+      // for (let key in regClusters) {
+        // if (map.hasLayer(regClusters[key])) map.removeLayer(regClusters[key]);
+      // }
       // for (let key in comClusters) {
       //   if (map.hasLayer(comClusters[key])) map.removeLayer(comClusters[key]);
       // }
-      for (let key in provClusters) {
-        if (!(map.hasLayer(provClusters[key]))) map.addLayer(provClusters[key]);
-      }
+      // for (let key in provClusters) {
+      //   if (!(map.hasLayer(provClusters[key]))) map.addLayer(provClusters[key]);
+      // }
       map.removeLayer(communes);
       map.addLayer(provinces);
     }
     //hide provinces on zoom 11
     if (cZoom && aZoom < cZoom && map.getZoom() < 8 && map.hasLayer(provinces)) {
-      for (let key in provClusters) {
-        if (map.hasLayer(provClusters[key])) {
-          map.removeLayer(provClusters[key]);
-        }
-      }
+      // for (let key in provClusters) {
+      //   if (map.hasLayer(provClusters[key])) {
+      //     map.removeLayer(provClusters[key]);
+      //   }
+      // }
       // for (let key in comClusters) {
       //   if (map.hasLayer(comClusters[key])) map.removeLayer(comClusters[key]);
       // }
-      for (let key in regClusters) {
-        if (!(map.hasLayer(regClusters[key]))) {
-          map.addLayer(regClusters[key]);
-        }
-      }
+      // for (let key in regClusters) {
+      //   if (!(map.hasLayer(regClusters[key]))) {
+      //     map.addLayer(regClusters[key]);
+      //   }
+      // }
       map.removeLayer(provinces);
       map.addLayer(regions);
     }
@@ -437,17 +437,17 @@ function toggleProvinces(p) {
       provLayers[cm].bindTooltip(provLayers[cm].feature.properties.province,{direction:'center',permanent:true}).openTooltip();
     }
   }
-  for (let key in regClusters) {
-    if (map.hasLayer(regClusters[key])) {
-      map.removeLayer(regClusters[key]);
-    }
-  }
+  // for (let key in regClusters) {
+  //   if (map.hasLayer(regClusters[key])) {
+  //     map.removeLayer(regClusters[key]);
+  //   }
+  // }
   // for (let key in comClusters) {
   //   if (map.hasLayer(comClusters[key])) map.removeLayer(comClusters[key]);
   // }
-  for (let key in provClusters) {
-    if (!(map.hasLayer(provClusters[key]))) map.addLayer(provClusters[key]);
-  }
+  // for (let key in provClusters) {
+  //   if (!(map.hasLayer(provClusters[key]))) map.addLayer(provClusters[key]);
+  // }
   map.removeLayer(regions);
 }
 
@@ -497,15 +497,15 @@ function toggleCommunes(p) {
       map.addLayer(commLayers[cm]);
     }
   }
-  for (let key in regClusters) {
-    if (map.hasLayer(regClusters[key])) map.removeLayer(regClusters[key]);
-  }
+  // for (let key in regClusters) {
+  //   if (map.hasLayer(regClusters[key])) map.removeLayer(regClusters[key]);
+  // }
   // for (let key in provClusters) {
   //   if (map.hasLayer(provClusters[key])) map.removeLayer(provClusters[key]);
   // }
-  for (let key in provClusters) {
-    if (!(map.hasLayer(provClusters[key]))) map.addLayer(provClusters[key]);
-  }
+  // for (let key in provClusters) {
+  //   if (!(map.hasLayer(provClusters[key]))) map.addLayer(provClusters[key]);
+  // }
   //if user zooms out hide lower level layers
   map.on('zoomend', function(z) {
     var aZoom = map.getZoom();
@@ -527,12 +527,12 @@ function toggleCommunes(p) {
 function toggleMarkers(p) {
   p.originalEvent.stopPropagation();
   var prov = p.target;
-  for (let key in regClusters) {
-    if (map.hasLayer(regClusters[key])) map.removeLayer(regClusters[key]);
-  }
-  for (let key in provClusters) {
-    if (!(map.hasLayer(provClusters[key]))) map.addLayer(provClusters[key]);
-  }
+  // for (let key in regClusters) {
+  //   if (map.hasLayer(regClusters[key])) map.removeLayer(regClusters[key]);
+  // }
+  // for (let key in provClusters) {
+  //   if (!(map.hasLayer(provClusters[key]))) map.addLayer(provClusters[key]);
+  // }
   // for (let key in comClusters) {
   //   if (!map.hasLayer(comClusters[key])) map.addLayer(comClusters[key]);
   // }
