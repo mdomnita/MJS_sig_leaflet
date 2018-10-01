@@ -44,14 +44,25 @@ $.getJSON("data/proc/morocco.geojson",function(data1){
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-  //print map control
-  var printer = L.easyPrint({
-    tileLayer: basemap1,
-    sizeModes: ['A4Landscape', 'A4Portrait'],
-    filename: 'myMap',
-    hideControlContainer: true
-  }).addTo(map);
+  // print map contro/l
+  // var printer = L.easyPrint({
+  //   tileLayer: basemap1,
+  //   sizeModes: ['A4Landscape', 'A4Portrait', 'A3Portrait'],
+  //   filename: 'myMap',
+  //   position:'bottomright',
+  //   exportOnly: true,
+  //   hideControlContainer: true
+  // }).addTo(map);
 
+  L.control.browserPrint({
+    closePopupsOnPrint: false,
+    printModes: [
+      L.control.browserPrint.mode.landscape("A0 Landscape", "A0"),
+      L.control.browserPrint.mode.portrait("A0", "A0"),
+      L.control.browserPrint.mode.landscape("A3 Landscape", "A3"),
+      L.control.browserPrint.mode.portrait("A3", "A3")
+    ]
+  }).addTo(map);
 
   info.onAdd = function (map) {
     this._div = L.DomUtil.create('div');
