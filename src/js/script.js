@@ -16,7 +16,7 @@ var provClusters = {};
 var map = L.map('map', {
   center: [33.80, -6.21],                  //[29.38217507514529, -8.7451171875],
   zoom: 9,
-  layers: [regions]
+  layers: []
 });
 
 
@@ -108,8 +108,17 @@ $.getJSON("data/proc/morocco.geojson",function(data1){
             mouseout: resetHighlight,
             click: toggleProvinces
           });
+          regions.addLayer(layer);
         }
-    }).addTo(regions);
+    });
+      map.addLayer(regions);
+      regions.eachLayer(function (layer) {
+          console.log(layer);
+      });
+      // for(la in regions.getLayers()) {
+      //   var layer = regions.getLayers()[la];
+      //   layer.bindTooltip(layer.properties.Name,{permanent:true}).openTooltip();
+      // }
   });
 
   $.getJSON("data/proc/provinceReg.geojson",function(data2){
@@ -289,14 +298,15 @@ $.getJSON("data/proc/morocco.geojson",function(data1){
         // comClusters[mrkpropz.COMMUNEID].addLayer(markers[mrk]);
       }
       for (let key in provClusters) {
-        map.addLayer(provClusters[key]);
+        //don't add markers to map by default, add them only when markers layer is clicked
+        // map.addLayer(provClusters[key]);
       }
   });
-    // map.addLayer(clusters);
+    map.addLayer(clusters);
 
     //layers 
     var baseLayers = {
-       "Markers":basemap1
+       "Basemap":basemap1
     };
   // vars for IDs of layers control 
     var overlays = {
@@ -506,6 +516,7 @@ function toggleCommunes(p) {
     }
     else {
       map.addLayer(commLayers[cm]);
+      commLayers[cm].bindTooltip(commLayers[cm].feature.properties.commune,{permanent:true}).openTooltip();
     }
   }
   // for (let key in regClusters) {
