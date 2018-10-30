@@ -243,7 +243,7 @@ img.leaflet-marker-icon{
 }
 
 .categories-scroll{
-	height: 250px;
+	/*height: 250px;*/
 	overflow: auto;
 	border-left: 3px solid #de0000;
 }
@@ -334,31 +334,6 @@ img.leaflet-marker-icon{
 .filterBox.active{
 	left: 0;
 	/*display:block;*/
-}
-.filterBox .search{
-	position: relative;
-	border-bottom: 1px solid #cecaca; 
-}
-.filterBox .search input{
-	display: block;
-	width: 100%;
-	border:0;
-	height: 43px;
-	padding-left: 10px;
-	box-sizing: border-box;
-	padding-right: 50px;
-	font-size: 15px;
-}
-.filterBox .search button{
-	background: transparent;
-	position: absolute;
-	right: 10px;
-	top: 14px;
-	border:0;
-}
-.filterBox .search button i{
-	color: #de0000;
-	
 }
 .drop-select{
 	display:none;
