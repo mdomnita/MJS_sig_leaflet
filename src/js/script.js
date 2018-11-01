@@ -12,6 +12,8 @@ var clusters = L.markerClusterGroup({showCoverageOnHover:false});
 var regClusters = {};
 var comClusters =  {};
 var provClusters = {};
+var reqHold = false;
+var timer;
 
 var map = L.map('map', {
   center: [33.80, -6.21],                  //[29.38217507514529, -8.7451171875],
@@ -79,6 +81,13 @@ info.update = function (props) {
   document.getElementById('provInfo').appendChild(frag);
 };
 info.addTo(map);
+// make categories scroll effective and set height size:
+var height = $(document).height() - 500;
+document.getElementById('categories').style.cssText = 'max-height:'+height+'px;overflow-y:scroll;';
+$('#categories').off('mouseover').on('mouseover',function(){
+  clearTimeout(timer);
+  reqHold = false;
+});
 
 checkZoomEnd(); 
 
@@ -166,7 +175,7 @@ $.getJSON("data/proc/markersReg.geojson",function(data5){
   geojsonmrk = L.geoJson(data5,{
     onEachFeature: function (feature, layer) {
       if (!layer) return;
-      var fNomf = (typeof feature.properties.NOMFIRST === "string")? feature.properties.NOMFIRST : "" ;
+      // var fNomf = (typeof feature.properties.NOMFIRST === "string")? feature.properties.NOMFIRST : "" ;
       var fNom =  (typeof feature.properties.NOM === "string")? feature.properties.NOM : ""
       var fAddr =  (typeof feature.properties.ADRESSE === "string")? feature.properties.ADRESSE : ""
       layer.bindPopup('<div class="custom-popup">'+
@@ -185,8 +194,6 @@ $.getJSON("data/proc/markersReg.geojson",function(data5){
           '<h3>'+ fNom +'</h3>'+
           '<div class="location"><i class="fas fa-map-marker-alt"></i>'+ fAddr
          +'</div>'+
-          '<a href="#" class="btn btn-danger">'+ fNom
-         +'</a>'+
         '</div>'+
         '<div id="tab-2" class="tab-content">'+
         '</div>'+
@@ -336,10 +343,17 @@ if (!searchControl) {
   map.removeLayer(communes);
 }
 
+function clearCateg() {
+    info.update();
+    reqHold = false;
+}
+
 function resetHighlight(r) {
+  //do nothing if something else is in progress
   geojsonfile1.resetStyle(r.target);
-  $('.categories-scroll').html('');
-  info.update();
+  if (reqHold) return;
+  reqHold = true;
+  timer = setTimeout(clearCateg,3000);
 }
 
 function checkZoomEnd() {
@@ -392,8 +406,9 @@ function styleregions(feature) {
 //reset and highlight province
 function resetHighlightProv(p) {
   geojsonfile2.resetStyle(p.target);
-    $('.categories-scroll').html('');
-    info.update();
+  if (reqHold) return;
+  reqHold = true;
+  timer = setTimeout(clearCateg,3000);
 }
 
 //highlight province
@@ -608,7 +623,9 @@ function getColor(d) {
 
 function resetHighlightComm(c) {
   geojsonfile3.resetStyle(c.target);
-    info.update();
+  if (reqHold) return;
+  reqHold = true;
+  timer = setTimeout(clearCateg,3000);
 }
 
 //highlight commune
