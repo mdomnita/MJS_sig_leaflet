@@ -170,6 +170,7 @@ img.leaflet-marker-icon{
 
 .informationBox{
 	max-width: 500px;
+	min-width: 200px;
     background: #fff;
     padding: 20px;
     border-radius: 7px;
