@@ -7,6 +7,7 @@ var markers = [];
 var regions = L.layerGroup();
 var provinces = L.layerGroup();
 var communes = L.layerGroup();
+var invMarkers = L.layerGroup();
 //clusters hold the categories shown on the map
 var clusters = L.markerClusterGroup({showCoverageOnHover:false});
 var regClusters = {};
@@ -14,6 +15,7 @@ var comClusters =  {};
 var provClusters = {};
 var reqHold = false;
 var timer;
+var searchControl;
 
 var map = L.map('map', {
   center: [33.80, -6.21],                  //[29.38217507514529, -8.7451171875],
@@ -177,7 +179,7 @@ $.getJSON("data/proc/markersReg.geojson",function(data5){
       if (!layer) return;
       // var fNomf = (typeof feature.properties.NOMFIRST === "string")? feature.properties.NOMFIRST : "" ;
       var fNom =  (typeof feature.properties.NOM === "string")? feature.properties.NOM : ""
-      var fAddr =  (typeof feature.properties.ADRESSE === "string")? feature.properties.ADRESSE : ""
+      var fAddr =  (typeof feature.properties.ADRESSE === "string")? " "+feature.properties.ADRESSE : " "
       layer.bindPopup('<div class="custom-popup">'+
         '<div class="tabs">'+
           '<li class="active singleTab" data-tab="tab-1">'+'Information'+'</li>'+
@@ -192,7 +194,7 @@ $.getJSON("data/proc/markersReg.geojson",function(data5){
             '</div>'+
           '</div>'+
           '<h3>'+ fNom +'</h3>'+
-          '<div class="location"><i class="fas fa-map-marker-alt"></i>'+ fAddr
+          '<div class="location"><i class="fa fa-map-marker-alt"></i>'+ fAddr
          +'</div>'+
         '</div>'+
         '<div id="tab-2" class="tab-content">'+
@@ -256,16 +258,19 @@ $.getJSON("data/proc/markersReg.geojson",function(data5){
       } else if (mType === "TPJNG"){
         feature.properties.icon = tpjng;
         var marker = L.marker(latlng,feature.properties);
-      } 
+      }
       //fallback option for wrong/incorrect data
       else {
         feature.properties.icon = tpjng;
         var marker = L.marker(latlng,feature.properties);
       }
+      //properties to search by
+      feature.properties.searchT = feature.properties.NOM + ' | ' + feature.properties.ADRESSE+ ' | ' + feature.properties.COMMUNE;
       //markers will always have all markers from map. clusters only have the ones shown after filtering
       if (marker) {
         markers.push(marker);
       }
+      //ainvisible marker for search?
       return marker;
     }
   });
@@ -285,8 +290,34 @@ $.getJSON("data/proc/markersReg.geojson",function(data5){
     //don't add markers to map by default, add them only when markers layer is clicked
     // map.addLayer(provClusters[key]);
   }
+  if (!searchControl) { 
+    searchControl = new L.Control.Search({
+      layer: clusters,
+      propertyName: 'searchT',
+      initial:false,
+      autoCollapse:true,
+      // marker: {
+      //   circle:{radius:50}
+      // },
+      moveToLocation: function(latlng, title, map) {
+        map.panTo(latlng); // access the zoom
+      }
+    });
+
+    searchControl.on('search:locationfound', function(e) {
+      setTimeout("searchControl._markerSearch.removeFrom(map)",3000);
+      //   e.layer.openPopup();
+      // if (!map.hasLayer(e.layer)) map.addLayer(e.layer);
+      // map.removeLayer(provinces);
+    });
+  }
+
+  map.addControl( searchControl );  //inizialize search control
+  map.removeLayer(geojsonmrk);
 });
-  map.addLayer(clusters);
+map.addLayer(clusters);
+
+map.removeLayer(communes);
 
   //layers 
   var baseLayers = {
@@ -317,31 +348,6 @@ $.getJSON("data/proc/markersReg.geojson",function(data5){
   });
 });
 
-
-var searchControl;
-if (!searchControl) { 
-  searchControl = new L.Control.Search({
-    layer: communes,
-    propertyName: 'commune',
-    marker: false,
-    moveToLocation: function(latlng, title, map) {
-      //map.fitBounds( latlng.layer.getBounds() );
-      var zoom = map.getBoundsZoom(latlng.layer.getBounds());
-        map.setView(latlng, zoom); // access the zoom
-    }
-  });
-
-  searchControl.on('search:locationfound', function(e) {
-    if(e.layer._popup)
-      e.layer.openPopup();
-    if (!map.hasLayer(e.layer)) map.addLayer(e.layer);
-    // map.removeLayer(regions);
-    // map.removeLayer(provinces);
-  });
-
-  map.addControl( searchControl );  //inizialize search control
-  map.removeLayer(communes);
-}
 
 function clearCateg() {
     info.update();
