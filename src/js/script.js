@@ -46,10 +46,10 @@ $.getJSON("data/proc/morocco.geojson",function(data1){
 L.control.browserPrint({
   closePopupsOnPrint: false,
   printModes: [
+    // L.control.browserPrint.mode.landscape("A3 Landscape", "A3"),
+    // L.control.browserPrint.mode.portrait("A3", "A3"),
     L.control.browserPrint.mode.landscape("A0 Landscape", "A0"),
-    L.control.browserPrint.mode.portrait("A0", "A0"),
-    L.control.browserPrint.mode.landscape("A3 Landscape", "A3"),
-    L.control.browserPrint.mode.portrait("A3", "A3")
+    L.control.browserPrint.mode.portrait("A0", "A0")
   ]
 }).addTo(map);
 
@@ -140,7 +140,10 @@ $.getJSON("data/proc/communesReg.geojson",function(data3){
           mouseout: resetHighlightComm,
           click: toggleMarkers
         });
+      //properties to search by
+      feature.properties.searchT = feature.properties.commune;
        communes.addLayer(layer3);
+       invMarkers.addLayer(layer3);
      }
   });
 });
@@ -276,6 +279,7 @@ $.getJSON("data/proc/markersReg.geojson",function(data5){
   });
   //add to markers only, add to cluster only on commune click (request)
   clusters.addLayer(geojsonmrk);
+  invMarkers.addLayer(geojsonmrk);
 
   var markerz = geojsonmrk.getLayers();
   for (mrk in markers) {
@@ -292,7 +296,7 @@ $.getJSON("data/proc/markersReg.geojson",function(data5){
   }
   if (!searchControl) { 
     searchControl = new L.Control.Search({
-      layer: clusters,
+      layer: invMarkers,
       propertyName: 'searchT',
       initial:false,
       autoCollapse:true,
@@ -305,14 +309,19 @@ $.getJSON("data/proc/markersReg.geojson",function(data5){
     });
 
     searchControl.on('search:locationfound', function(e) {
+      if (e.layer instanceof L.Polygon) {
+        map.addLayer(e.layer);
+        map.fitBounds(e.layer.getBounds());
+      }
       setTimeout("searchControl._markerSearch.removeFrom(map)",3000);
       //   e.layer.openPopup();
       // if (!map.hasLayer(e.layer)) map.addLayer(e.layer);
-      // map.removeLayer(provinces);
+      map.removeLayer(invMarkers);
     });
   }
 
   map.addControl( searchControl );  //inizialize search control
+  map.removeLayer(invMarkers);
   map.removeLayer(geojsonmrk);
 });
 map.addLayer(clusters);
@@ -348,7 +357,6 @@ map.removeLayer(communes);
   });
 });
 
-
 function clearCateg() {
     info.update();
     reqHold = false;
@@ -358,7 +366,7 @@ function resetHighlight(r) {
   //do nothing if something else is in progress
   geojsonfile1.resetStyle(r.target);
   if (reqHold) return;
-  reqHold = true;
+  // reqHold = true;
   timer = setTimeout(clearCateg,3000);
 }
 
@@ -394,6 +402,7 @@ function highlightRegion(r) {
     fillOpacity: 0.2
   });
   info.update(layer1.feature.properties);
+  clearTimeout(timer);
   $('.categories-scroll').html("");
   fillCommMarkTyp(layer1,'reg');
 }
@@ -413,7 +422,7 @@ function styleregions(feature) {
 function resetHighlightProv(p) {
   geojsonfile2.resetStyle(p.target);
   if (reqHold) return;
-  reqHold = true;
+  // reqHold = true;
   timer = setTimeout(clearCateg,3000);
 }
 
@@ -430,6 +439,7 @@ function highlightProvince(p) {
     fillOpacity: 0.2
   });
   info.update(layer2.feature.properties);
+  clearTimeout(timer);
   $('.categories-scroll').html("");
   $('.population-taginfo span p').html('N/A');
   var found = false;
@@ -630,7 +640,7 @@ function getColor(d) {
 function resetHighlightComm(c) {
   geojsonfile3.resetStyle(c.target);
   if (reqHold) return;
-  reqHold = true;
+  // reqHold = true;
   timer = setTimeout(clearCateg,3000);
 }
 
@@ -648,6 +658,7 @@ function highlightCommune(c) {
     fillOpacity: 0.2
   });
   info.update(layer3.feature.properties);
+  clearTimeout(timer);
   // $('.population-taginfo span p').html(layer3.feature.properties['population'] ? layer3.feature.properties['population'] : 'N/A');
   $('.population-taginfo span p').html('N/A');
   fillCommMarkTyp(layer3,'comm');
